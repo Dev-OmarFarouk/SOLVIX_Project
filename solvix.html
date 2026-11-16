@@ -2002,7 +2002,41 @@
         const CLIP_ROOT = 'assets/audio/';
         const clips = Object.create(null);
         let clipAudio = null;
-        fetch(CLIP_ROOT + 'manifest.json', { cache: 'no-cache' })
+        const audioCache = new Map();
+
+        function getAudio(src) {
+            let a = audioCache.get(src);
+            if (!a) {
+                a = new Audio();
+                a.src = src;
+                a.preload = 'auto';
+                audioCache.set(src, a);
+            }
+            return a;
+        }
+
+        function preloadClipById(id) {
+            if (!id || !clips[id]) return;
+            const c = clips[id];
+            if (c && c.src) {
+                const a = getAudio(c.src);
+                if (a.readyState < 2) {
+                    try { a.load(); } catch (e) { }
+                }
+            }
+        }
+
+        function preloadMissionAudio(index) {
+            if (index < 0 || index >= missionSlides.length) return;
+            preloadClipById(clipIdFor(index, 'en'));
+            preloadClipById(clipIdFor(index, 'ar'));
+            if (index + 1 < missionSlides.length) {
+                preloadClipById(clipIdFor(index + 1, 'en'));
+                preloadClipById(clipIdFor(index + 1, 'ar'));
+            }
+        }
+
+        fetch(CLIP_ROOT + 'manifest.json')
             .then(r => (r.ok ? r.json() : null))
             .then(m => {
                 if (!m || !m.clips) return;
@@ -2012,8 +2046,14 @@
                         clips[id] = { src: CLIP_ROOT + c.file, dur: +c.duration || 0 };
                     }
                 }
+                // Preload initial mission audio immediately
+                preloadClipById('eagle/01-en');
+                preloadClipById('eagle/01-ar');
+                preloadClipById('eagle/02-en');
+                preloadClipById('eagle/02-ar');
             })
             .catch(() => { });
+
         function clipIdFor(i, lang) {
             const mi = +missionSlides[i].dataset.m;
             const v = VEHICLES[mi];
@@ -2041,9 +2081,12 @@
             const lang = voiceMode === 2 ? 'ar' : 'en';
             const clip = clips[clipIdFor(i, lang)];
             if (clip) {
-                clipAudio = new Audio(clip.src);
-                clipAudio.preload = 'auto';
+                clipAudio = getAudio(clip.src);
+                try { clipAudio.currentTime = 0; } catch (e) { }
                 clipAudio.play().catch(() => { /* a blocked autoplay stays silent; the words still arrive */ });
+                if (i + 1 < missionSlides.length) {
+                    preloadClipById(clipIdFor(i + 1, lang));
+                }
                 return;
             }
             const ar = lang === 'ar', u = new SpeechSynthesisUtterance(ar ? AR[i] : clean(missionText[i].map(q => q.text).join(' ')));
@@ -2152,6 +2195,7 @@
             missionPrev.disabled = pos === 0;
             syncVehicle(mi);
             missionNotice.hidden = true;
+            preloadMissionAudio(index);
             armSlide(index);
         }
 
@@ -2891,6 +2935,12 @@
         function syncVehicle(mi) {
             const v = VEHICLES[mi];
             if (!v) return;
+            if (typeof preloadClipById === 'function') {
+                preloadClipById(v.id + '/01-en');
+                preloadClipById(v.id + '/01-ar');
+                preloadClipById(v.id + '/02-en');
+                preloadClipById(v.id + '/02-ar');
+            }
             const world = document.getElementById('mission-world');
             if (world) world.textContent = v.world === 'Asteroid belt' ? 'Asteroid belt · ' + v.where : (v.world === 'Mars' ? 'Mars' : 'The Moon') + ' · ' + v.where;
             if (viewerVehicle === mi) return;
