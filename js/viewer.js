@@ -58,7 +58,7 @@ function warmup() {
     setTimeout(() => { try { preloadMarsGround(); } catch (e) {} }, 1200);
   } catch (e) {}
 
-  const sequence = ['lm', 'surveyor', 'viking', 'sojourner', 'mer', 'curiosity', 'perseverance', 'insight', 'near', 'dawn'];
+  const sequence = ['lm', 'surveyor', 'viking', 'sojourner', 'mer', 'curiosity', 'perseverance', 'insight', 'phoenix', 'near', 'dawn'];
   let idx = 0;
   function next() {
     if (idx >= sequence.length) return;
