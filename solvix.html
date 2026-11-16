@@ -1161,6 +1161,59 @@
         .mis-world { display: inline-block; font-family: var(--font-mono); font-size: var(--fs-micro); font-weight: 500; line-height: 1.4; letter-spacing: .14em; text-transform: uppercase; color: var(--cy) }
         .mis-stage-copy h2 { font-family: var(--font-display); font-size: var(--fs-title); font-weight: var(--fw-regular); line-height: var(--lh-tight); letter-spacing: var(--ls-display); margin: 6px 0 4px; text-shadow: 0 0 24px rgba(37, 182, 255, .5) }
         .mis-stage-copy .sub { margin: 0; max-width: 60ch; color: var(--cy2); font-family: var(--font-body); font-size: var(--fs-small); line-height: 1.55 }
+        .mis-scroll-cue {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            margin-top: 14px;
+            padding: 9px 20px;
+            border: 1.5px solid rgba(56, 189, 248, 0.85);
+            border-radius: 9999px;
+            background: rgba(6, 20, 42, 0.75);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            color: #ffffff;
+            font-family: var(--font-ui, var(--font-body, system-ui));
+            font-size: 13.5px;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            cursor: pointer;
+            pointer-events: auto;
+            text-decoration: none;
+            box-shadow: 0 0 18px rgba(37, 182, 255, 0.32), 0 4px 14px rgba(0, 0, 0, 0.45);
+            transition: all 0.25s ease;
+        }
+        .mis-scroll-cue:hover {
+            background: rgba(37, 182, 255, 0.28);
+            border-color: #38bdf8;
+            color: #ffffff;
+            box-shadow: 0 0 26px rgba(37, 182, 255, 0.7), 0 6px 20px rgba(0, 0, 0, 0.55);
+            transform: translateY(-2px);
+        }
+        .mis-scroll-cue:active {
+            transform: translateY(1px);
+            box-shadow: 0 0 12px rgba(37, 182, 255, 0.4);
+        }
+        .mis-cue-arrow {
+            display: inline-block;
+            transition: transform 0.25s ease;
+            animation: cueBounce 2s ease-in-out infinite;
+        }
+        .mis-scroll-cue:hover .mis-cue-arrow {
+            animation: none;
+            transform: translateY(3px);
+        }
+        @keyframes cueBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(4px); }
+        }
+        @media (max-width: 640px) {
+            .mis-scroll-cue {
+                padding: 7px 14px;
+                font-size: 12px;
+                margin-top: 10px;
+            }
+        }
         .mis-tools { position: absolute; right: clamp(12px, 3vw, 26px); top: clamp(68px, 12vh, 100px); z-index: 5; display: flex; align-items: center; gap: 10px }
         .mis-back { position: relative; padding: 9px 16px; border: 1px solid rgba(37, 182, 255, .4); border-radius: 999px; background: rgba(4, 14, 32, .72); color: var(--tx); font-family: var(--font-ui); font-size: 12px; font-weight: var(--fw-medium); letter-spacing: var(--ls-ui); text-decoration: none; backdrop-filter: blur(6px); transition: .2s }
         .mis-back:hover { background: rgba(37, 182, 255, .24); box-shadow: 0 0 18px rgba(37, 182, 255, .45) }
@@ -1497,6 +1550,13 @@
                     <span class="mis-world" id="mission-world">The Moon · Sea of Tranquility</span>
                     <h2 id="mission-title">Apollo Lunar Modules</h2>
                     <p class="sub" id="mission-sub">Meet Eagle, the first crewed vehicle to land on the Moon.</p>
+                    <button type="button" class="mis-scroll-cue" id="mission-scroll-cue" aria-label="Explore this mission story">
+                        <span>Explore this mission</span>
+                        <svg class="mis-cue-arrow" viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <line x1="8" y1="2" x2="8" y2="13"></line>
+                            <polyline points="4 9 8 13 12 9"></polyline>
+                        </svg>
+                    </button>
                 </div>
                 <div class="mis-tools">
                     <a class="mis-back" href="#worlds">← Explore by Worlds</a>
@@ -2097,6 +2157,20 @@
             const pos = grp.indexOf(missionSlides[currentMissionSlide]);
             if (pos > 0) { sfx.back(); showMissionSlide(currentMissionSlide - 1); }
         });
+        const missionCue = document.getElementById('mission-scroll-cue');
+        if (missionCue) {
+            missionCue.addEventListener('click', () => {
+                try { if (window.sfx && window.sfx.nav) window.sfx.nav(); } catch (e) { }
+                const activeFig = document.querySelector('#mission figure.active');
+                if (activeFig) {
+                    activeFig.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                } else {
+                    const stg = document.querySelector('.mis-stage');
+                    const targetTop = stg ? stg.offsetTop + stg.offsetHeight : window.innerHeight;
+                    window.scrollTo({ top: targetTop, behavior: 'smooth' });
+                }
+            });
+        }
         missionNext.addEventListener('click', () => {
             const mi = +missionSlides[currentMissionSlide].dataset.m;
             const grp = missionSlides.filter(s => +s.dataset.m === mi);
