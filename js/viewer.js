@@ -1,6 +1,6 @@
 /* The machine viewer, taken from the archive's detail page: the same lighting,
  * the same ground under the hardware, the same drag to turn it around. */
-import { DetailScene } from './detail-viewer.js';
+import { DetailScene, preloadModel, preloadMoonGround, preloadMarsGround } from './detail-viewer.js';
 
 let scene = null;
 let host = null;
@@ -51,7 +51,34 @@ function mount(model, world, onReady) {
   }
 }
 
-// The live scene is exposed so the page can add a second machine, a label or a
-// marker to the same world instead of opening a second renderer.
-window.SolvixViewer = { mount, unmount };
+// Background warmup of terrain computations and 3D models during idle time
+function warmup() {
+  try {
+    preloadMoonGround();
+    setTimeout(() => { try { preloadMarsGround(); } catch (e) {} }, 1200);
+  } catch (e) {}
+
+  const sequence = ['lm', 'surveyor', 'viking', 'sojourner', 'mer', 'curiosity', 'perseverance', 'insight', 'near', 'dawn'];
+  let idx = 0;
+  function next() {
+    if (idx >= sequence.length) return;
+    const m = sequence[idx++];
+    preloadModel(m)
+      .catch(() => null)
+      .finally(() => {
+        setTimeout(next, 600);
+      });
+  }
+  setTimeout(next, 1800);
+}
+
+if (typeof window !== 'undefined') {
+  if (document.readyState === 'complete') {
+    setTimeout(warmup, 500);
+  } else {
+    window.addEventListener('load', () => setTimeout(warmup, 500));
+  }
+}
+
+window.SolvixViewer = { mount, unmount, preloadModel, preloadMoonGround, preloadMarsGround };
 window.dispatchEvent(new Event('solvix:viewer-ready'));
