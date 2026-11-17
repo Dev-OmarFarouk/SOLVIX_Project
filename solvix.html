@@ -1225,6 +1225,13 @@
 
         }
 
+
+        /* ---------------- pixel-art icons ---------------- */
+        .pxi { display: inline-block; width: 1em; height: 1em; vertical-align: -0.12em; shape-rendering: crispEdges; image-rendering: pixelated; flex: 0 0 auto }
+        .gm-card .gm-ic { display: flex; justify-content: center; align-items: center; font-size: 0; margin-bottom: 4px }
+        .gm-card .gm-ic .pxi { width: 56px; height: 56px; filter: drop-shadow(0 8px 16px rgba(37, 182, 255, .45)) }
+        .gm-card.hard .gm-ic .pxi { filter: drop-shadow(0 8px 16px rgba(255, 138, 31, .5)) }
+        .pz-stats .pxi-sm { width: 13px; height: 13px; margin-right: 3px; opacity: .95 }
         /* GAME MODE MENU */
         .gm { max-width: 900px }
         .gm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-top: 26px }
@@ -2151,11 +2158,11 @@
             <p class="sub">Pick a level and start playing.</p>
             <div class="gm-grid">
                 <button class="gm-card easy" type="button" data-mode="easy">
-                    <span class="gm-ic">🧩</span><b>Easy</b>
+                    <span class="gm-ic"><svg class="pxi" viewBox="0 0 14 14" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="5" y="1" width="4" height="1" fill="#37b6ee"/><rect x="4" y="2" width="6" height="1" fill="#37b6ee"/><rect x="2" y="3" width="1" height="1" fill="#37b6ee"/><rect x="3" y="3" width="1" height="1" fill="#8fe4ff"/><rect x="4" y="3" width="6" height="1" fill="#37b6ee"/><rect x="2" y="4" width="1" height="1" fill="#8fe4ff"/><rect x="3" y="4" width="9" height="1" fill="#37b6ee"/><rect x="1" y="5" width="3" height="1" fill="#8fe4ff"/><rect x="4" y="5" width="9" height="1" fill="#37b6ee"/><rect x="1" y="6" width="12" height="1" fill="#37b6ee"/><rect x="1" y="7" width="10" height="1" fill="#37b6ee"/><rect x="1" y="8" width="10" height="1" fill="#37b6ee"/><rect x="1" y="9" width="12" height="1" fill="#37b6ee"/><rect x="1" y="10" width="12" height="1" fill="#37b6ee"/><rect x="2" y="11" width="10" height="1" fill="#37b6ee"/><rect x="3" y="12" width="8" height="1" fill="#14648f"/></svg></span><b>Easy</b>
                     <small>Jigsaw puzzle — clear nine stages that get harder as you go.</small>
                 </button>
                 <button class="gm-card hard" type="button" data-mode="hard">
-                    <span class="gm-ic">🛠️</span><b>Hard</b>
+                    <span class="gm-ic"><svg class="pxi" viewBox="0 0 14 14" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="3" y="1" width="8" height="1" fill="#eef7ff"/><rect x="2" y="2" width="1" height="1" fill="#eef7ff"/><rect x="3" y="2" width="8" height="1" fill="#b9cfe4"/><rect x="11" y="2" width="1" height="1" fill="#eef7ff"/><rect x="2" y="3" width="1" height="1" fill="#eef7ff"/><rect x="3" y="3" width="8" height="1" fill="#b9cfe4"/><rect x="11" y="3" width="1" height="1" fill="#eef7ff"/><rect x="3" y="4" width="8" height="1" fill="#b9cfe4"/><rect x="5" y="5" width="4" height="1" fill="#ff8a1f"/><rect x="5" y="6" width="4" height="1" fill="#ff8a1f"/><rect x="6" y="7" width="4" height="1" fill="#ff8a1f"/><rect x="6" y="8" width="4" height="1" fill="#ff8a1f"/><rect x="7" y="9" width="4" height="1" fill="#ff8a1f"/><rect x="7" y="10" width="4" height="1" fill="#ff8a1f"/><rect x="8" y="11" width="4" height="1" fill="#ff8a1f"/><rect x="8" y="12" width="4" height="1" fill="#ff8a1f"/></svg></span><b>Hard</b>
                     <small>Build a spacecraft, name it, choose a destination, and explore.</small>
                 </button>
             </div>
@@ -2171,7 +2178,7 @@
                 <button class="pz-btn" id="pz-shuffle" type="button">🔀 Shuffle</button>
                 <button class="pz-btn" id="pz-new" type="button">🔁 New puzzle</button>
                 <button class="pz-btn" id="pz-snd" type="button" aria-label="Sound">🔊</button>
-                <div class="pz-stats"><span id="pz-time">⏱ 0:00</span><span id="pz-left">🧩 0/0</span></div>
+                <div class="pz-stats"><span id="pz-time">⏱ 0:00</span><span id="pz-left"><svg class="pxi pxi-sm" viewBox="0 0 14 14" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="5" y="1" width="4" height="1" fill="#37b6ee"/><rect x="4" y="2" width="6" height="1" fill="#37b6ee"/><rect x="2" y="3" width="1" height="1" fill="#37b6ee"/><rect x="3" y="3" width="1" height="1" fill="#8fe4ff"/><rect x="4" y="3" width="6" height="1" fill="#37b6ee"/><rect x="2" y="4" width="1" height="1" fill="#8fe4ff"/><rect x="3" y="4" width="9" height="1" fill="#37b6ee"/><rect x="1" y="5" width="3" height="1" fill="#8fe4ff"/><rect x="4" y="5" width="9" height="1" fill="#37b6ee"/><rect x="1" y="6" width="12" height="1" fill="#37b6ee"/><rect x="1" y="7" width="10" height="1" fill="#37b6ee"/><rect x="1" y="8" width="10" height="1" fill="#37b6ee"/><rect x="1" y="9" width="12" height="1" fill="#37b6ee"/><rect x="1" y="10" width="12" height="1" fill="#37b6ee"/><rect x="2" y="11" width="10" height="1" fill="#37b6ee"/><rect x="3" y="12" width="8" height="1" fill="#14648f"/></svg><i id="pz-count">0/0</i></span></div>
             </div>
             <div id="pz-wrap">
                 <div id="pz-stage"></div>
@@ -2193,7 +2200,7 @@
                     <button class="pz-btn" id="hb-shuffle" type="button">🔀 Shuffle</button>
                     <button class="pz-btn" id="hb-reset" type="button">🔁 Restart</button>
                     <button class="pz-btn" id="hb-snd" type="button" aria-label="Sound">🔊</button>
-                    <div class="pz-stats"><span id="hb-time">⏱ 0:00</span><span id="hb-left">🔧 0/0</span></div>
+                    <div class="pz-stats"><span id="hb-time">⏱ 0:00</span><span id="hb-left"><svg class="pxi pxi-sm" viewBox="0 0 14 14" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="4" y="1" width="4" height="1" fill="#cfe3f5"/><rect x="3" y="2" width="2" height="1" fill="#cfe3f5"/><rect x="7" y="2" width="2" height="1" fill="#cfe3f5"/><rect x="3" y="3" width="2" height="1" fill="#cfe3f5"/><rect x="7" y="3" width="2" height="1" fill="#cfe3f5"/><rect x="4" y="4" width="4" height="1" fill="#cfe3f5"/><rect x="5" y="5" width="2" height="1" fill="#ff8a1f"/><rect x="5" y="6" width="2" height="1" fill="#ff8a1f"/><rect x="6" y="7" width="2" height="1" fill="#ff8a1f"/><rect x="6" y="8" width="2" height="1" fill="#ff8a1f"/><rect x="7" y="9" width="2" height="1" fill="#ff8a1f"/><rect x="7" y="10" width="2" height="1" fill="#ff8a1f"/><rect x="8" y="11" width="2" height="1" fill="#ff8a1f"/><rect x="8" y="12" width="2" height="1" fill="#ff8a1f"/></svg><i id="hb-count">0/0</i></span></div>
                 </div>
                 <div id="hb-wrap">
                     <svg id="hb-svg" viewBox="0 0 800 650" role="img" aria-label="Spacecraft assembly board"></svg>
@@ -2390,10 +2397,11 @@
 
         /* ------------------------------------------------------------------ */
         /* Solvix audio identity                                              */
-        /* One ambient soundtrack (synthesised, no external files) that the    */
-        /* world switches re-colour, a few environmental cues, and the single  */
-        /* Music / Effects control in the header. The existing sfx synth and    */
-        /* the narration are untouched: this only gates them and adds space.   */
+        /* Three short original cues, one for each part of the site: the calm  */
+        /* space loop (home and worlds), the storytelling loop that sits under */
+        /* the narration on the equipment pages, and a 16-bit chiptune for the */
+        /* games. Every note is written here and played by a small sequencer,  */
+        /* so nothing is downloaded and nothing belongs to anyone else.        */
         /* ------------------------------------------------------------------ */
         const SolvixAudio = (() => {
             const LS_KEY = 'solvix.audio';
@@ -2409,9 +2417,49 @@
 
             sfx.on = prefs.fx;
 
-            let ac = null, master = null, musicBus = null, padGain = null, padFilter = null;
-            let subGain = null, airGain = null, verbNode = null;
-            let started = false, ducked = false, noteTimer = 0, unlocked = false;
+            const hz = m => 440 * Math.pow(2, (m - 69) / 12);
+
+            /* The cues. `bpm` and `sub` set the step length (2 = eighths,
+               4 = sixteenths); every entry is [step, midi, lengthInSteps]. */
+            const SCENES = {
+                space: {
+                    bpm: 60, sub: 2, len: 16, level: 0.9,
+                    pad: [[0, [45, 52, 60, 71], 4], [4, [41, 48, 57, 64], 4], [8, [48, 55, 64, 62], 4], [12, [43, 50, 59, 64], 4]],
+                    bell: [[0, 76, 3, 0.05], [3, 71, 2, 0.045], [6, 72, 3, 0.045], [10, 67, 4, 0.04], [14, 69, 2, 0.04]]
+                },
+                story: {
+                    bpm: 76, sub: 2, len: 32, level: 0.76,
+                    pad: [[0, [50, 57, 65, 64], 8], [8, [46, 53, 62, 69], 8], [16, [41, 48, 57, 64], 8], [24, [48, 55, 62, 64], 8]],
+                    bell: [[16, 74, 4, 0.05], [20, 77, 4, 0.045], [24, 76, 3, 0.045], [28, 69, 4, 0.04]],
+                    bass: [[0, 38, 8], [8, 34, 8], [16, 29, 8], [24, 36, 8]],
+                    pulse: [0, 16]
+                },
+                game: {
+                    bpm: 140, sub: 4, len: 64, level: 0.56,
+                    bass: [[0, 45, 4], [4, 45, 4], [8, 45, 4], [12, 45, 4], [16, 41, 4], [20, 41, 4], [24, 41, 4], [28, 41, 4], [32, 48, 4], [36, 48, 4], [40, 48, 4], [44, 48, 4], [48, 43, 4], [52, 43, 4], [56, 43, 4], [60, 43, 4]],
+                    lead: [[0, 69, 2, 0.055], [2, 72, 2, 0.05], [4, 76, 4, 0.055], [8, 74, 2, 0.05], [10, 72, 2, 0.05], [12, 69, 4, 0.055],
+                        [16, 65, 2, 0.05], [18, 69, 2, 0.05], [20, 72, 4, 0.055], [24, 74, 2, 0.05], [26, 72, 2, 0.05], [28, 69, 4, 0.055],
+                        [32, 76, 2, 0.055], [34, 79, 2, 0.05], [36, 76, 4, 0.055], [40, 74, 2, 0.05], [42, 72, 2, 0.05], [44, 74, 4, 0.055],
+                        [48, 72, 2, 0.05], [50, 69, 2, 0.05], [52, 67, 4, 0.05], [56, 64, 2, 0.05], [58, 67, 2, 0.05], [60, 69, 4, 0.055]]
+                }
+            };
+            // The story cue's arpeggio is drawn from its own chords.
+            SCENES.story.arp = [];
+            SCENES.story.pad.forEach(c => {
+                const n = c[1];
+                [n[1], n[2], n[3], n[1] + 12].forEach((m, k) => SCENES.story.arp.push([c[0] + k * 2, m, 2, 0.028]));
+            });
+            // A plain backbeat for the game cue.
+            SCENES.game.kick = []; SCENES.game.snare = []; SCENES.game.hat = [];
+            for (let i = 0; i < 64; i++) {
+                if (i % 8 === 0) SCENES.game.kick.push(i);
+                if (i % 8 === 4) SCENES.game.snare.push(i);
+                if (i % 4 === 2) SCENES.game.hat.push(i);
+            }
+
+            let ac = null, master = null, musicBus = null, toneFilter = null;
+            let bus = null, started = false, ducked = false, unlocked = false;
+            let sceneName = 'space', seq = null, timer = 0, hatNoise = null;
             let lastWhoosh = 0, lastEnter = 0, lastUi = 0;
 
             function noiseBuffer(a, seconds) {
@@ -2427,99 +2475,113 @@
                 return buf;
             }
 
-            function impulse(a, seconds) {
-                const len = Math.max(1, Math.floor(a.sampleRate * seconds));
-                const buf = a.createBuffer(2, len, a.sampleRate);
-                for (let c = 0; c < 2; c++) {
-                    const d = buf.getChannelData(c);
-                    for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.6);
+            function voicePad(a, f, t, dur, vol, out) {
+                const o = a.createOscillator(), o2 = a.createOscillator(), lp = a.createBiquadFilter(), g = a.createGain();
+                o.type = 'sawtooth'; o2.type = 'triangle';
+                o.frequency.value = f; o2.frequency.value = f;
+                o.detune.value = -6; o2.detune.value = 8;
+                lp.type = 'lowpass';
+                lp.frequency.setValueAtTime(640, t);
+                lp.frequency.linearRampToValueAtTime(1120, t + dur * 0.45);
+                lp.frequency.linearRampToValueAtTime(600, t + dur);
+                g.gain.setValueAtTime(0.0001, t);
+                g.gain.linearRampToValueAtTime(vol, t + Math.min(1.4, dur * 0.3));
+                g.gain.linearRampToValueAtTime(0.0001, t + dur);
+                o.connect(lp); o2.connect(lp); lp.connect(g); g.connect(out);
+                o.start(t); o2.start(t); o.stop(t + dur + 0.1); o2.stop(t + dur + 0.1);
+            }
+
+            function voiceBell(a, f, t, dur, vol, out) {
+                const o = a.createOscillator(), o2 = a.createOscillator(), g = a.createGain(), g2 = a.createGain();
+                o.type = 'sine'; o.frequency.value = f;
+                o2.type = 'sine'; o2.frequency.value = f * 2.01;
+                g2.gain.value = 0.3; o2.connect(g2); g2.connect(g);
+                g.gain.setValueAtTime(0.0001, t);
+                g.gain.exponentialRampToValueAtTime(vol, t + 0.03);
+                g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+                o.connect(g); g.connect(out);
+                o.start(t); o2.start(t); o.stop(t + dur + 0.05); o2.stop(t + dur + 0.05);
+            }
+
+            function voicePluck(a, f, t, dur, vol, out, chip) {
+                const o = a.createOscillator(), lp = a.createBiquadFilter(), g = a.createGain();
+                o.type = chip ? 'square' : 'triangle';
+                o.frequency.value = f;
+                lp.type = 'lowpass';
+                lp.frequency.setValueAtTime(chip ? 3400 : 2200, t);
+                lp.frequency.exponentialRampToValueAtTime(chip ? 1200 : 800, t + dur);
+                g.gain.setValueAtTime(0.0001, t);
+                g.gain.exponentialRampToValueAtTime(vol, t + 0.012);
+                g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+                o.connect(lp); lp.connect(g); g.connect(out);
+                o.start(t); o.stop(t + dur + 0.03);
+            }
+
+            function voiceBass(a, f, t, dur, out, chip) {
+                const o = a.createOscillator(), lp = a.createBiquadFilter(), g = a.createGain();
+                o.type = chip ? 'square' : 'triangle';
+                o.frequency.value = f;
+                lp.type = 'lowpass'; lp.frequency.value = chip ? 720 : 480;
+                g.gain.setValueAtTime(0.0001, t);
+                g.gain.linearRampToValueAtTime(0.07, t + 0.03);
+                g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+                o.connect(lp); lp.connect(g); g.connect(out);
+                o.start(t); o.stop(t + dur + 0.03);
+            }
+
+            function voiceDrum(a, kind, t, out) {
+                if (kind === 'hat') {
+                    if (!hatNoise) hatNoise = noiseBuffer(a, 0.1);
+                    const src = a.createBufferSource(), hp = a.createBiquadFilter(), g = a.createGain();
+                    src.buffer = hatNoise;
+                    hp.type = 'highpass'; hp.frequency.value = 6400;
+                    g.gain.setValueAtTime(0.018, t);
+                    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.05);
+                    src.connect(hp); hp.connect(g); g.connect(out);
+                    src.start(t); src.stop(t + 0.09);
+                    return;
                 }
-                return buf;
+                if (kind === 'kick' || kind === 'pulse') {
+                    const o = a.createOscillator(), g = a.createGain();
+                    const tight = kind === 'kick';
+                    o.type = 'sine';
+                    o.frequency.setValueAtTime(tight ? 132 : 92, t);
+                    o.frequency.exponentialRampToValueAtTime(44, t + 0.16);
+                    g.gain.setValueAtTime(tight ? 0.14 : 0.09, t);
+                    g.gain.exponentialRampToValueAtTime(0.0001, t + (tight ? 0.22 : 0.55));
+                    o.connect(g); g.connect(out);
+                    o.start(t); o.stop(t + 0.6);
+                    return;
+                }
+                const src = a.createBufferSource(), bp = a.createBiquadFilter(), g = a.createGain();
+                src.buffer = noiseBuffer(a, 0.18);
+                bp.type = 'bandpass'; bp.frequency.value = 1900; bp.Q.value = 0.8;
+                g.gain.setValueAtTime(0.06, t);
+                g.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
+                src.connect(bp); bp.connect(g); g.connect(out);
+                src.start(t); src.stop(t + 0.2);
+            }
+
+            function newBus(a, level) {
+                const g = a.createGain();
+                g.gain.value = 0;
+                g.level = level;
+                g.connect(musicBus);
+                return g;
             }
 
             function build(a) {
                 master = a.createGain();
                 master.gain.value = 1;
                 master.connect(a.destination);
-
+                toneFilter = a.createBiquadFilter();
+                toneFilter.type = 'lowpass';
+                toneFilter.frequency.value = 9000;
+                toneFilter.Q.value = 0.2;
+                toneFilter.connect(master);
                 musicBus = a.createGain();
                 musicBus.gain.value = 0;
-                musicBus.connect(master);
-
-                verbNode = a.createConvolver();
-                verbNode.buffer = impulse(a, 2.8);
-                const wet = a.createGain();
-                wet.gain.value = 0.3;
-                verbNode.connect(wet);
-                wet.connect(musicBus);
-
-                // Warm pad: a low A-add9 that breathes through a slow filter.
-                padFilter = a.createBiquadFilter();
-                padFilter.type = 'lowpass';
-                padFilter.frequency.value = 820;
-                padFilter.Q.value = 0.5;
-                padGain = a.createGain();
-                padGain.gain.value = 0.16;
-                padFilter.connect(padGain);
-                padGain.connect(musicBus);
-                padGain.connect(verbNode);
-
-                const voice = [[110, 'sine', 0.24], [164.81, 'sine', 0.18], [246.94, 'triangle', 0.1], [329.63, 'sine', 0.07]];
-                voice.forEach(v => {
-                    [-7, 7].forEach(det => {
-                        const o = a.createOscillator();
-                        o.type = v[1];
-                        o.frequency.value = v[0];
-                        o.detune.value = det;
-                        const g = a.createGain();
-                        g.gain.value = v[2] * 0.5;
-                        o.connect(g);
-                        g.connect(padFilter);
-                        o.start();
-                    });
-                });
-
-                const lfo = a.createOscillator();
-                lfo.frequency.value = 0.045;
-                const lfoGain = a.createGain();
-                lfoGain.gain.value = 240;
-                lfo.connect(lfoGain);
-                lfoGain.connect(padFilter.frequency);
-                lfo.start();
-
-                // A low drone under everything.
-                const sub = a.createOscillator();
-                sub.type = 'sine';
-                sub.frequency.value = 55;
-                subGain = a.createGain();
-                subGain.gain.value = 0.07;
-                sub.connect(subGain);
-                subGain.connect(musicBus);
-                sub.start();
-
-                // Air: filtered noise, the sound of open space.
-                const air = a.createBufferSource();
-                air.buffer = noiseBuffer(a, 4);
-                air.loop = true;
-                const airFilter = a.createBiquadFilter();
-                airFilter.type = 'bandpass';
-                airFilter.frequency.value = 900;
-                airFilter.Q.value = 0.7;
-                airGain = a.createGain();
-                airGain.gain.value = 0.05;
-                air.connect(airFilter);
-                airFilter.connect(airGain);
-                airGain.connect(musicBus);
-                airGain.connect(verbNode);
-                air.start();
-
-                const airLfo = a.createOscillator();
-                airLfo.frequency.value = 0.07;
-                const airDepth = a.createGain();
-                airDepth.gain.value = 0.02;
-                airLfo.connect(airDepth);
-                airDepth.connect(airGain.gain);
-                airLfo.start();
+                musicBus.connect(toneFilter);
             }
 
             function ctx() {
@@ -2539,34 +2601,30 @@
                 return a;
             }
 
-            // A rare, quiet note from the same family as the pad: the "discovery" colour.
-            const CHIME = [523.25, 587.33, 659.25, 783.99, 880];
-            function chime() {
-                const a = ac;
-                if (!a || !prefs.music || ducked) return;
-                const t = a.currentTime;
-                const f = CHIME[(Math.random() * CHIME.length) | 0];
-                const o = a.createOscillator();
-                o.type = 'sine';
-                o.frequency.value = f;
-                const g = a.createGain();
-                g.gain.setValueAtTime(0.0001, t);
-                g.gain.exponentialRampToValueAtTime(0.04, t + 1.1);
-                g.gain.exponentialRampToValueAtTime(0.0001, t + 4.6);
-                o.connect(g);
-                g.connect(musicBus);
-                g.connect(verbNode);
-                o.start(t);
-                o.stop(t + 4.8);
+            function pump() {
+                if (!seq || !ac || !started) return;
+                const s = SCENES[seq.name];
+                const dur = 60 / s.bpm / s.sub;
+                const out = bus;
+                while (seq.t < ac.currentTime + 0.25) {
+                    const at = seq.t, st = seq.i % s.len;
+                    if (s.pad) s.pad.forEach(c => { if (c[0] === st) c[1].forEach(m => voicePad(ac, hz(m), at, c[2] * dur * 0.95, 0.05, out)) });
+                    if (s.bell) s.bell.forEach(m => { if (m[0] === st) voiceBell(ac, hz(m[1]), at, m[2] * dur, m[3], out) });
+                    if (s.arp) s.arp.forEach(m => { if (m[0] === st) voicePluck(ac, hz(m[1]), at, m[2] * dur, m[3], out, false) });
+                    if (s.lead) s.lead.forEach(m => { if (m[0] === st) voicePluck(ac, hz(m[1]), at, m[2] * dur, m[3], out, true) });
+                    if (s.bass) s.bass.forEach(m => { if (m[0] === st) voiceBass(ac, hz(m[1]), at, m[2] * dur, out, seq.name === 'game') });
+                    if (s.kick) s.kick.forEach(k => { if (k === st) voiceDrum(ac, 'kick', at, out) });
+                    if (s.snare) s.snare.forEach(k => { if (k === st) voiceDrum(ac, 'snare', at, out) });
+                    if (s.hat) s.hat.forEach(k => { if (k === st) voiceDrum(ac, 'hat', at, out) });
+                    if (s.pulse) s.pulse.forEach(k => { if (k === st) voiceDrum(ac, 'pulse', at, out) });
+                    seq.i++;
+                    seq.t += dur;
+                }
             }
 
-            function scheduleNotes() {
-                clearTimeout(noteTimer);
-                const wait = 9000 + Math.random() * 7000;
-                noteTimer = setTimeout(() => {
-                    if (started && prefs.music) chime();
-                    scheduleNotes();
-                }, wait);
+            function startSeq(name, when) {
+                seq = { name: name, i: 0, t: when };
+                if (!timer) timer = setInterval(pump, 25);
             }
 
             function startMusic() {
@@ -2576,36 +2634,54 @@
                 const t = a.currentTime;
                 musicBus.gain.cancelScheduledValues(t);
                 musicBus.gain.setValueAtTime(musicBus.gain.value, t);
-                musicBus.gain.linearRampToValueAtTime(1, t + 3);
-                scheduleNotes();
+                musicBus.gain.linearRampToValueAtTime(1, t + 2.5);
+                if (!bus) bus = newBus(a, SCENES[sceneName].level);
+                bus.gain.cancelScheduledValues(t);
+                bus.gain.setValueAtTime(bus.gain.value, t);
+                bus.gain.linearRampToValueAtTime(SCENES[sceneName].level, t + 2.5);
+                startSeq(sceneName, t + 0.12);
             }
 
             function stopMusic() {
                 started = false;
-                clearTimeout(noteTimer);
+                seq = null;
+                clearInterval(timer);
+                timer = 0;
                 if (!ac) return;
                 const t = ac.currentTime;
                 musicBus.gain.cancelScheduledValues(t);
                 musicBus.gain.setValueAtTime(musicBus.gain.value, t);
-                musicBus.gain.linearRampToValueAtTime(0, t + 1.8);
+                musicBus.gain.linearRampToValueAtTime(0, t + 1.5);
             }
 
-            // The soundtrack leans towards the world that is selected.
-            const MOODS = {
-                Moon: { cutoff: 900, air: 0.055, sub: 0.06, q: 0.5 },
-                Mars: { cutoff: 560, air: 0.035, sub: 0.1, q: 0.9 },
-                'Asteroid belt': { cutoff: 1250, air: 0.07, sub: 0.05, q: 1.6 }
-            };
+            // A new part of the site: the next cue comes up while the old one slips away.
+            function scene(id) {
+                const next = id === 'mission' ? 'story' : id === 'game' ? 'game' : 'space';
+                if (next === sceneName) return;
+                sceneName = next;
+                if (!started || !ac) return;
+                const t = ac.currentTime + 0.06;
+                const from = bus;
+                bus = newBus(ac, SCENES[next].level);
+                bus.gain.setValueAtTime(0.0001, t);
+                bus.gain.linearRampToValueAtTime(SCENES[next].level, t + 1.6);
+                if (from) {
+                    from.gain.cancelScheduledValues(t);
+                    from.gain.setValueAtTime(from.gain.value, t);
+                    from.gain.linearRampToValueAtTime(0.0001, t + 1.4);
+                    setTimeout(() => { try { from.disconnect(); } catch (e) { } }, 2400);
+                }
+                startSeq(next, t + 0.1);
+            }
+
+            const MOODS = { Moon: 9000, Mars: 5200, 'Asteroid belt': 12000 };
             function mood(world) {
                 if (!ac) return;
-                const m = MOODS[world] || MOODS.Moon;
+                const f = MOODS[world] || 9000;
                 const t = ac.currentTime;
-                padFilter.frequency.cancelScheduledValues(t);
-                padFilter.frequency.setValueAtTime(padFilter.frequency.value, t);
-                padFilter.frequency.linearRampToValueAtTime(m.cutoff, t + 2.4);
-                padFilter.Q.linearRampToValueAtTime(m.q, t + 2.4);
-                airGain.gain.linearRampToValueAtTime(m.air, t + 2.4);
-                subGain.gain.linearRampToValueAtTime(m.sub, t + 2.4);
+                toneFilter.frequency.cancelScheduledValues(t);
+                toneFilter.frequency.setValueAtTime(toneFilter.frequency.value, t);
+                toneFilter.frequency.linearRampToValueAtTime(f, t + 2.4);
             }
 
             function whoosh() {
@@ -2628,24 +2704,18 @@
                 g.gain.setValueAtTime(0.0001, t);
                 g.gain.exponentialRampToValueAtTime(0.11, t + 0.35);
                 g.gain.exponentialRampToValueAtTime(0.0001, t + 1.7);
-                src.connect(bp);
-                bp.connect(g);
-                g.connect(a.destination);
-                src.start(t);
-                src.stop(t + 1.8);
+                src.connect(bp); bp.connect(g); g.connect(a.destination);
+                src.start(t); src.stop(t + 1.8);
 
-                const o = a.createOscillator();
+                const o = a.createOscillator(), og = a.createGain();
                 o.type = 'sine';
                 o.frequency.setValueAtTime(210, t);
                 o.frequency.exponentialRampToValueAtTime(430, t + 1.1);
-                const og = a.createGain();
                 og.gain.setValueAtTime(0.0001, t);
                 og.gain.exponentialRampToValueAtTime(0.035, t + 0.5);
                 og.gain.exponentialRampToValueAtTime(0.0001, t + 1.4);
-                o.connect(og);
-                og.connect(a.destination);
-                o.start(t);
-                o.stop(t + 1.5);
+                o.connect(og); og.connect(a.destination);
+                o.start(t); o.stop(t + 1.5);
             }
 
             // Arriving at a machine: a slow swell, like drifting up to it.
@@ -2657,34 +2727,26 @@
                 if (now - lastEnter < 1200) return;
                 lastEnter = now;
                 const t = a.currentTime;
-                const o = a.createOscillator();
+                const o = a.createOscillator(), g = a.createGain();
                 o.type = 'sine';
                 o.frequency.setValueAtTime(62, t);
                 o.frequency.exponentialRampToValueAtTime(41, t + 2.2);
-                const g = a.createGain();
                 g.gain.setValueAtTime(0.0001, t);
                 g.gain.exponentialRampToValueAtTime(0.075, t + 0.8);
                 g.gain.exponentialRampToValueAtTime(0.0001, t + 2.6);
-                o.connect(g);
-                g.connect(a.destination);
-                o.start(t);
-                o.stop(t + 2.8);
+                o.connect(g); g.connect(a.destination);
+                o.start(t); o.stop(t + 2.8);
 
-                const src = a.createBufferSource();
+                const src = a.createBufferSource(), lp = a.createBiquadFilter(), ng = a.createGain();
                 src.buffer = noiseBuffer(a, 2.2);
-                const lp = a.createBiquadFilter();
                 lp.type = 'lowpass';
                 lp.frequency.setValueAtTime(400, t);
                 lp.frequency.linearRampToValueAtTime(1800, t + 1.4);
-                const ng = a.createGain();
                 ng.gain.setValueAtTime(0.0001, t);
                 ng.gain.exponentialRampToValueAtTime(0.03, t + 1);
                 ng.gain.exponentialRampToValueAtTime(0.0001, t + 2.2);
-                src.connect(lp);
-                lp.connect(ng);
-                ng.connect(a.destination);
-                src.start(t);
-                src.stop(t + 2.3);
+                src.connect(lp); lp.connect(ng); ng.connect(a.destination);
+                src.start(t); src.stop(t + 2.3);
             }
 
             // Interface: one quiet blip for the header tabs, which had no sound.
@@ -2696,18 +2758,15 @@
                 if (now - lastUi < 120) return;
                 lastUi = now;
                 const t = a.currentTime;
-                const o = a.createOscillator();
+                const o = a.createOscillator(), g = a.createGain();
                 o.type = 'triangle';
                 o.frequency.setValueAtTime(760, t);
                 o.frequency.exponentialRampToValueAtTime(900, t + 0.06);
-                const g = a.createGain();
                 g.gain.setValueAtTime(0.0001, t);
                 g.gain.exponentialRampToValueAtTime(0.03, t + 0.012);
                 g.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
-                o.connect(g);
-                g.connect(a.destination);
-                o.start(t);
-                o.stop(t + 0.14);
+                o.connect(g); g.connect(a.destination);
+                o.start(t); o.stop(t + 0.14);
             }
 
             /* ---- the header control ---- */
@@ -2786,7 +2845,7 @@
             window.addEventListener('keydown', unlock, true);
             window.addEventListener('touchstart', unlock, true);
 
-            // No soundtrack in a hidden tab.
+            // No music in a hidden tab.
             document.addEventListener('visibilitychange', () => {
                 if (!ac) return;
                 if (document.hidden) { try { ac.suspend(); } catch (e) { } }
@@ -2798,7 +2857,7 @@
             return {
                 get music() { return prefs.music },
                 get fx() { return prefs.fx },
-                setMusic, setFx,
+                setMusic, setFx, scene,
                 toggleFx() { setFx(!prefs.fx) },
                 toggleMusic() { setMusic(!prefs.music) },
                 env(world) { mood(world); whoosh() },
@@ -2810,15 +2869,16 @@
                     const t = ac.currentTime;
                     musicBus.gain.cancelScheduledValues(t);
                     musicBus.gain.setValueAtTime(musicBus.gain.value, t);
-                    musicBus.gain.linearRampToValueAtTime(on ? 0.32 : 1, t + (on ? 0.5 : 1.4));
+                    musicBus.gain.linearRampToValueAtTime(on ? 0.3 : 1, t + (on ? 0.5 : 1.4));
                 }
             };
         })();
         window.SolvixAudio = SolvixAudio;
         const AR = ["مرحباً أيها القمريون! هل تعرفون من أنا؟ أنا إيجل، المركبة القمرية لأبولو 11، وأول مركبة مأهولة هبطت على القمر! بدأت مغامرتي في 16 يوليو 1969 على متن صاروخ ساتورن الخامس العملاق، أحمل رائدين شجاعين: نيل أرمسترونغ وباز ألدرين. وبعد أربعة أيام، في 20 يوليو، هبطت في منطقة بحر الهدوء. وعندما لمسنا السطح قال أرمسترونغ: هيوستن، هنا قاعدة الهدوء. لقد هبط النسر.", "تخيلوا يا قمريون، لم أكن وحدي في هذه المغامرة! كان معنا ثلاثة رواد: نيل أرمسترونغ وباز ألدرين وميشيل كولينز، الذي بقي في المركبة القيادية يدور فوقنا. في 21 يوليو 1969 نزل أرمسترونغ إلى سطح القمر وقال: هذه خطوة صغيرة لإنسان، وقفزة عملاقة للبشرية. ولحقه ألدرين بعد 19 دقيقة ووصف السطح بأنه عزلة رائعة. كشفنا اللوحة التذكارية، ورفعنا العلم الأمريكي، وتحدثنا مع الرئيس نيكسون بالراديو، وصنعنا التاريخ!", "انظروا ماذا وجدت يا قمريون! القمر مليء بالكنوز الخفية. جمع رائداي 21.55 كيلوغراماً من الصخور والتربة وعينات الأنابيب لتعود إلى الأرض، وقطعا نحو 250 متراً حولي. وأحضرنا مختبراً علمياً أيضاً! حزمة إيزب درست الزلازل القمرية وتراكم الغبار والإشعاع. وبعد ساعة و41 دقيقة على السطح، عاد ألدرين إليّ أولاً ثم أرمسترونغ، وأغلقنا الباب بإحكام.", "تعرفوا على أجزائي! لكل جزء فيّ وظيفة خاصة يا قمريون! تعالوا نلقِ نظرة قريبة ونكتشف ماذا يفعل كل جزء. هل أنتم مستعدون للاستكشاف؟", "من أنا برأيكم يا قمريون؟ أنا إنتريبيد، المركبة القمرية لأبولو 12، وثاني مركبة مأهولة تهبط على القمر! انطلقت في 14 نوفمبر 1969 على متن صاروخ ساتورن الخامس العملاق، أحمل القائد بيت كونراد وآلان بين. وفي 19 نوفمبر هبطت في محيط العواصف، على بعد 180 متراً فقط من المسبار سيرفيور 3، في أول هبوط دقيق في تاريخ القمر!", "تخيلوا يا قمريون! استكشف رائداي القمر لمدة 7 ساعات و45 دقيقة في رحلتي مشي، بينما انتظر ريتشارد غوردون في المدار فوقنا. نزلا إلى فوهة سيرفيور لزيارة سيرفيور 3 وأعادا نحو 10 كيلوغرامات من أجزائه، إضافة إلى 34.35 كيلوغراماً من الصخور والتربة!", "تركت هدية خلفي يا قمريون! نصب رائداي محطة علمية تعمل بالطاقة النووية بستة أجهزة تستمع للزلازل القمرية وتقيس الرياح الشمسية. واستمرت في إرسال الاكتشافات إلى الأرض حتى 30 سبتمبر 1977، قرابة ثماني سنوات! وعندما ارتطمت مرحلة الصعود الخاصة بي بالقمر، سببت أول زلزال قمري اصطناعي مسجل.", "لكل جزء فيّ وظيفة خاصة يا قمريون! من مرحلة الهبوط الثمانية الأضلاع بأرجلها الأربع، إلى مقصورة الطاقم بنافذتيها المثلثتين ومحرك الهبوط بقوة 45 ألف نيوتن، ساعدتني كل قطعة على الهبوط بأمان. هل أنتم مستعدون للاستكشاف؟", "مرحباً يا قمريون! نحن مسابير سيرفيور، مسابير ناسا الآلية إلى القمر في الستينيات! هبط خمسة منا بين 1966 و1968. كانت مهمتنا إثبات أن الهبوط الناعم على القمر ممكن، وأن تربته صلبة بما يكفي ليمشي عليها رواد أبولو بأمان!", "نحن عائلة يا قمريون، لكن لكل منا بيته! هبطت سيرفيور 1 و3 و5 و6 على سهول مستوية مثل محيط العواصف وبحر الهدوء لاستكشاف أماكن آمنة لأبولو. أما سيرفيور 7 فهبطت قرب فوهة تيكو الصخرية لتستكشف المرتفعات الوعرة!", "فعلنا أكثر مما توقع أي أحد! سيرفيور 1 حققت أول هبوط ناعم لأمريكا على القمر عام 1966 وأرسلت 11,240 صورة. سيرفيور 3 حفرت خنادق بعمق 17.5 سنتيمتراً وزارها رواد أبولو 12 عام 1969. وسيرفيور 6 قامت بأول إقلاع من القمر وقفزت ثلاثة أمتار! معاً أرسلنا قرابة 90 ألف صورة.", "لكل جزء فينا وظيفة خاصة يا قمريون! من ألواحنا الشمسية التي جمعت ضوء الشمس إلى كاميرات التلفاز ومجارف التربة الآلية، ساعدتنا كل قطعة على استكشاف القمر. هل أنتم مستعدون؟", "مرحباً يا قمريون! نحن فايكنغ 1 وفايكنغ 2، أول مسبارَي هبوط لناسا يعملان بنجاح على المريخ! هبطنا عام 1976 ولا نزال في الأماكن نفسها. كانت مهمتنا التقاط أول صور واضحة من سطح المريخ، ورصد طقسه، وإجراء ثلاث تجارب بيولوجية على التربة بحثاً عن علامات للحياة!", "نحن توأمان يا قمريون، لكننا هبطنا على بعد 6500 كيلومتر من بعضنا! هبطت فايكنغ 1 في سهل كرايس، أي السهل الذهبي، في 20 يوليو 1976 وسط كثبان رملية وصخور. وهبطت فايكنغ 2 في سهل يوتوبيا في 3 سبتمبر 1976، وهو سهل صخري مستوٍ يتشكل فيه الصقيع الأبيض شتاءً!", "صُنعنا لنعمل 90 يوماً، لكننا عملنا سنوات في أماكننا! عملت فايكنغ 1 أكثر من 6 سنوات حتى نوفمبر 1982، ودرست فايكنغ 2 سهل يوتوبيا قرابة 4 سنوات حتى أبريل 1980. معاً أرسلنا 4500 صورة من السطح واكتشفنا العناصر الكيميائية الأساسية للحياة!", "لكل جزء فينا وظيفة خاصة يا قمريون! من مولدات الطاقة النووية وصواري الطقس إلى الكاميرات ومجارف التربة التي غذّت مختبراتنا البيولوجية، ساعدتنا كل قطعة على استكشاف الكوكب الأحمر. هل أنتم مستعدون؟", "مرحباً يا قمريون! أنا سوجورنر، أول مركبة جوالة لناسا على المريخ! هبطت في 4 يوليو 1997 داخل مسبار مارس باثفايندر بفضل وسائد هوائية عملاقة مرتدة! كانت مهمتي إثبات أن مركبة آلية تستطيع التجول على المريخ ودراسة صخوره وتربته. ووجدت حصى مستديراً يدل على أن المريخ كان دافئاً ورطباً قديماً!", "استكشفت أنا وباثفايندر وادي آريس، وهو وادٍ مستوٍ حفرته فيضانات قديمة، حيث ارتدّ باثفايندر 15 مرة قبل أن يفتح منحدراتي! واقتربت من صخور مريخية ضخمة سُمّيت بارناكل بيل ويوغي لأختبر مما تتكون!", "حجمي بحجم فرن ميكروويف فقط، 10.6 كيلوغرامات، لكنني فقت كل التوقعات! صُنعت لسبعة أيام فقط، لكنني استكشفت المريخ 83 يوماً مريخياً حتى سبتمبر 1997. التقطت 550 صورة واختبرت أكثر من 15 صخرة مريخية. واليوم أبقى في وادي آريس رائدةً لكل المركبات الجوالة!", "لكل جزء فيّ وظيفة خاصة يا قمريون! من لوحي الشمسي المسطح إلى عجلاتي الست وجهاز تحليل الصخور، ساعدتني كل قطعة على استكشاف الكوكب الأحمر. هل أنتم مستعدون؟", "مرحباً يا قمريون! نحن لسنا واحداً بل مستكشفان آليان مغامران! نحن سبيريت وأوبورتيونيتي، توأما ناسا الجوالان على المريخ، وهبطنا على جانبين متقابلين من الكوكب الأحمر في يناير 2004. كانت مهمتنا دراسة صخور المريخ وتربته والبحث عن أدلة على الماء. واكتشفنا دليلاً على وجود ماء سائل على المريخ منذ زمن بعيد جداً!", "نحن توأمان لكن لكلٍّ منا مكان هبوط مختلف! هبطت سبيريت في فوهة غوسيف التي ظن العلماء أنها كانت بحيرة. وهبطت أوبورتيونيتي في سهل ميريديياني حيث دلّت المعادن على وجود ماء قديماً.", "قطعنا مسافات أبعد بكثير مما توقع أحد! قطعت سبيريت 7.7 كيلومترات على المريخ قبل انتهاء مهمتها. وقطعت أوبورتيونيتي 45.16 كيلومتراً مذهلة قبل أن ينقطع الاتصال بها في يونيو 2018، لتصبح من أطول المستكشفين الآليين سيراً على عالم آخر!", "لكل جزء فينا وظيفة خاصة يا قمريون! من ألواحنا الشمسية التي جمعت ضوء الشمس إلى كاميراتنا التي التقطت مناظر رائعة للمريخ، ساعدتنا كل قطعة على استكشاف الكوكب الأحمر. هل أنتم مستعدون؟", "مرحباً يا قمريون! نحن فينيكس التي هبطت في مايو 2008، وإنسايت التي هبطت في نوفمبر 2018، مسباران آليان بجسم واحد ثلاثي الأرجل وأجنحة شمسية دائرية! بدونا متشابهين لكن لكلٍّ مهمة: حفرت فينيكس التربة لتكشف جليد الماء تحت السطح، ووضعت إنسايت جهاز قياس الزلازل على الأرض لتسمع زلازل المريخ!", "هبطنا في منطقتين مختلفتين تماماً من الكوكب الأحمر! هبطت فينيكس في فاستيتاس بوريالس في القطب المريخي المتجمد لتحفر بحثاً عن الجليد. وهبطت إنسايت في سهل إليزيوم، سهل هادئ مستوٍ قرب خط الاستواء، مثالي لسماع نبض المريخ!", "حققنا اكتشافات تاريخية قبل أن نفقد الطاقة الشمسية! حفرت فينيكس جليد ماء أبيض لامعاً ورصدت ثلجاً مريخياً قبل أن تفقد طاقتها في الشتاء، نوفمبر 2008. ورصدت إنسايت أكثر من 1300 زلزال مريخي وكشفت طبقات المريخ الداخلية العميقة قبل أن يغطي الغبار ألواحها في ديسمبر 2022!", "لكل جزء فينا وظيفة خاصة يا قمريون! من ألواحنا الشمسية الدائرية إلى مجرفة فينيكس التي حفرت الجليد وجهاز إنسايت القبّي لقياس الزلازل، ساعدتنا كل قطعة على استكشاف المريخ. هل أنتم مستعدون؟", "مرحباً يا قمريون! أنا نير شوميكر، مسبار ناسا الآلي للكويكبات الذي أُطلق عام 1996! كنت أول مركبة في التاريخ تدور حول كويكب، وأول من هبط على واحد! كانت مهمتي الدوران حول الكويكب إيروس 433 القريب من الأرض على شكل حبة فول سوداني، ورسم خريطة لفوهاته وصخوره عن قرب، ومعرفة مما تتكون الكويكبات القديمة!", "قبل أن أستقر على إيروس زرت عالمين صخريين! في 1997 مررت بجوار الكويكب ماتيلد 253، كويكب داكن مليء بالفوهات في الحزام الرئيسي. ثم دخلت مدار إيروس 433 في 14 فبراير 2000 وهبطت قرب منطقة هيميروس في 12 فبراير 2001!", "لم أُصنع لأكون مركبة هبوط، ومع ذلك نجوت من الهبوط على كويكب! دُرت حول إيروس عاماً كاملاً والتقطت 160 ألف صورة، أي عشرة أضعاف البيانات المخطط لها، وأرسلت بيانات علمية إضافية أسبوعين آخرين. ومنذ 28 فبراير 2001 أستريح بهدوء على سطح إيروس 433!", "لكل جزء فيّ وظيفة خاصة يا قمريون! من ألواحي الشمسية الأربعة الشبيهة بالمروحة إلى مقياس المسافة بالليزر ومطياف أشعة غاما الذي درس إيروس من سطحه، ساعدتني كل قطعة على استكشاف كويكب. هل أنتم مستعدون؟", "مرحباً يا قمريون! أنا داون، مسبار ناسا بين الكواكب الذي أُطلق عام 2007! بفضل محركاتي الأيونية فائقة الكفاءة، كنت أول مركبة تدور حول عالمين مختلفين خارج الأرض! كانت مهمتي السفر إلى حزام الكويكبات بين المريخ والمشتري ورسم خريطة لأكبر عالمين فيه، فيستا وسيريس، لكشف أسرار ولادة نظامنا الشمسي!", "دُرت حول عالمين مختلفين جداً ورسمت خريطتيهما! فيستا من 2011 إلى 2012 كوكب أولي صخري فيه فوهة ريازيلفيا العملاقة وجبل أعلى من ضعف إيفرست. وسيريس من 2015 إلى 2018 كوكب قزم جليدي مشهور ببقع الملح البيضاء المتوهجة داخل فوهة أوكاتور!", "محركاتي الأيونية الزرقاء المتوهجة أخذتني أبعد مما حلم أحد! قضيت 14 شهراً أرسم خريطة فوهات فيستا ووديانها قبل أن أنطلق إلى سيريس التي دُرت حولها منذ مارس 2015. وبعد أن نفد وقودي في نوفمبر 2018، أبقى في مدار دائم غير مدفوع حول سيريس!", "لكل جزء فيّ وظيفة خاصة يا قمريون! من أجنحتي الشمسية العملاقة ودافعاتي الأيونية إلى كاميراتي التي رسمت فيستا وسيريس ثلاثية الأبعاد، ساعدتني كل قطعة على استكشاف حزام الكويكبات. هل أنتم مستعدون؟"];
         const canSpeak = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window, voiceBtn = document.getElementById('mission-voice');
-        let voiceMode = 0; // 0 off, 1 English, 2 Arabic
+        let voiceMode = 1; // 1 English (default), 2 Arabic, 0 off
         if (!canSpeak) voiceBtn.hidden = true; else speechSynthesis.getVoices();
+        voiceBtn.textContent = '\u{1F5E3} ' + ['Off', 'EN', 'AR'][voiceMode];
         const voiceOn = () => canSpeak && voiceMode > 0;
         /* The recorded voice-over. The generator writes the files and their
            manifest; this only ever reads them, so pressing play is a plain file
@@ -3243,7 +3303,7 @@
 
             function stats() {
                 $('pz-time').textContent = '⏱ ' + fmt(elapsed());
-                $('pz-left').textContent = st ? '🧩 ' + st.placed + '/' + st.total : '🧩 0/0';
+                $('pz-count').textContent = st ? st.placed + '/' + st.total : '0/0';
             }
             function tick() { stats() }
             function startTimer() { if (started || won) return; started = true; t0 = performance.now(); clearInterval(timer); timer = setInterval(tick, 500) }
@@ -3492,7 +3552,7 @@
             const fmt = ms => { const s = Math.floor(ms / 1000); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0') };
             const elapsed = () => acc + (started && !won ? performance.now() - t0 : 0);
             const mk = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e };
-            const stats = () => { $('hb-time').textContent = '⏱ ' + fmt(elapsed()); $('hb-left').textContent = S ? '🔧 ' + S.placed + '/' + S.total : '🔧 0/0' };
+            const stats = () => { $('hb-time').textContent = '⏱ ' + fmt(elapsed()); $('hb-count').textContent = S ? S.placed + '/' + S.total : '0/0' };
             const startTimer = () => { if (started || won) return; started = true; t0 = performance.now(); clearInterval(timer); timer = setInterval(stats, 500) };
             const stopTimer = () => { if (started && !won) acc += performance.now() - t0; clearInterval(timer); timer = null };
             const pose = p => p.el.setAttribute('transform', `translate(${p.x.toFixed(1)},${p.y.toFixed(1)}) scale(${p.sc})`);
@@ -4027,6 +4087,7 @@
             } else {
                 clearInterval(missionTimer); clearTimeout(missionDelay); stopVoice(); leaveVehicle();
             }
+            if (window.SolvixAudio) window.SolvixAudio.scene(id);
             if (window.SolvixExplore) { if (id === 'worlds') window.SolvixExplore.show(); else window.SolvixExplore.hide(); }
             document.body.classList.toggle('rocks', id !== 'home');
             GM.show(id === 'game' ? 'menu' : 'none');
