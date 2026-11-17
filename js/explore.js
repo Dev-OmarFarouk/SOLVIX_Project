@@ -684,6 +684,8 @@
 
     var moving = world !== activeWorld;
     activeWorld = world;
+    // A world change is a small journey: one whoosh and a shift in the pad.
+    if (moving && window.SolvixAudio) window.SolvixAudio.env(world);
 
     if (!moving || !stage || calm) { paint(); return; }
 
@@ -940,6 +942,7 @@
   function transfer(from, to, done) {
     var overlay = document.getElementById('transfer');
     if (!overlay) { if (done) done(); return; }
+    if (window.SolvixAudio) window.SolvixAudio.hop();
 
     var stageEl = document.getElementById('tp-stage');
     var canvas = document.getElementById('tp-planet');
