@@ -44,7 +44,16 @@ function startServer(port) {
         const parsedUrl = url.parse(req.url);
         let pathname = decodeURIComponent(parsedUrl.pathname);
 
-        if (pathname === '/' || pathname === '') {
+        // Strip /devices prefix for static asset requests if present
+        if (pathname.startsWith('/devices/assets/')) pathname = pathname.replace('/devices', '');
+        else if (pathname.startsWith('/devices/models/')) pathname = pathname.replace('/devices', '');
+        else if (pathname.startsWith('/devices/draco/')) pathname = pathname.replace('/devices', '');
+        else if (pathname.startsWith('/devices/textures/')) pathname = pathname.replace('/devices', '');
+        else if (pathname.startsWith('/devices/js/')) pathname = pathname.replace('/devices', '');
+
+        const isSpaRoute = pathname.startsWith('/devices') || pathname === '/worlds' || pathname === '/game' || pathname === '/solvix';
+
+        if (pathname === '/' || pathname === '' || isSpaRoute) {
             pathname = fs.existsSync(path.join(ROOT_DIR, 'index.html')) ? '/index.html' : '/solvix.html';
         }
 
@@ -59,6 +68,15 @@ function startServer(port) {
 
         fs.stat(filePath, (err, stats) => {
             if (err || !stats.isFile()) {
+                // SPA fallback for routes without file extension
+                if (!path.extname(pathname)) {
+                    const fallbackHtml = fs.existsSync(path.join(ROOT_DIR, 'index.html')) ? path.join(ROOT_DIR, 'index.html') : path.join(ROOT_DIR, 'solvix.html');
+                    if (fs.existsSync(fallbackHtml)) {
+                        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+                        fs.createReadStream(fallbackHtml).pipe(res);
+                        return;
+                    }
+                }
                 res.writeHead(404, { 'Content-Type': 'text/plain' });
                 res.end(`404 Not Found: ${pathname}`);
                 return;

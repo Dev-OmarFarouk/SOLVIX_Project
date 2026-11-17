@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+    <base href="/">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>SOLVIX – Journey Beyond the Stars</title>
@@ -843,6 +844,50 @@
                 transform: translateY(14px);
                 opacity: 0
             }
+        }
+
+        
+        /* Stage Device Switcher */
+        .mis-tools {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .mis-device-nav {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(14, 25, 45, 0.75);
+            border: 1px solid rgba(37, 182, 255, 0.4);
+            border-radius: 999px;
+            padding: 3px 10px;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        .mis-nav-arrow {
+            background: transparent;
+            border: none;
+            color: #8fa3bd;
+            font-size: 20px;
+            line-height: 1;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: color .2s, transform .15s;
+        }
+        .mis-nav-arrow:hover {
+            color: #00f0ff;
+            transform: scale(1.2);
+        }
+        .mis-nav-device-name {
+            font-family: var(--font-display, monospace);
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 0.05em;
+            color: #e7f0fb;
+            min-width: 44px;
+            text-align: center;
+            user-select: none;
         }
 
         /* MISSION */
@@ -1847,7 +1892,12 @@
                     </button>
                 </div>
                 <div class="mis-tools">
-                    <a class="mis-back" href="#worlds">← Explore by Worlds</a>
+                    <a class="mis-back" href="/worlds">← Explore by Worlds</a>
+                    <div class="mis-device-nav" aria-label="Device switcher">
+                        <button type="button" class="mis-nav-arrow mis-nav-prev" id="stage-prev-device" aria-label="Previous device" title="Previous device">‹</button>
+                        <span class="mis-nav-device-name" id="stage-device-indicator">1 / 9</span>
+                        <button type="button" class="mis-nav-arrow mis-nav-next" id="stage-next-device" aria-label="Next device" title="Next device">›</button>
+                    </div>
                 </div>
                 <div class="mis-model-loading" id="mission-loading">Loading the model…</div>
             </div>
@@ -2470,24 +2520,56 @@
             const mi = +missionSlides[index].dataset.m, grp = missionSlides.filter(s => +s.dataset.m === mi), pos = grp.indexOf(missionSlides[index]);
             missionTitle.textContent = missions[mi].t; missionSub.textContent = missions[mi].s;
             missionProgress.textContent = `${pos + 1} / ${grp.length}`;
+
+            // Update stage device indicator
+            const ind = document.getElementById('stage-device-indicator');
+            if (ind && VEHICLES.length) ind.textContent = `${mi + 1} / ${VEHICLES.length}`;
+
             const lastOfGroup = pos === grp.length - 1;
             const nextMachine = VEHICLES[(mi + 1) % VEHICLES.length];
+            const prevMachine = VEHICLES[(mi - 1 + VEHICLES.length) % VEHICLES.length];
+
             missionNext.textContent = lastOfGroup ? 'Next equipment · ' + (nextMachine ? nextMachine.name : '') + ' »' : 'Next page »';
             missionNext.disabled = false;
             missionNext.hidden = false;
             missionNext.classList.toggle('is-transfer', lastOfGroup);
-            missionPrev.disabled = pos === 0;
+
+            // Previous button allows navigating to previous equipment when at first slide
+            if (pos === 0) {
+                missionPrev.textContent = '« Previous: ' + (prevMachine ? prevMachine.name : 'equipment');
+                missionPrev.disabled = false;
+                missionPrev.classList.add('is-transfer');
+            } else {
+                missionPrev.textContent = '« Previous page';
+                missionPrev.disabled = false;
+                missionPrev.classList.remove('is-transfer');
+            }
+
             syncVehicle(mi);
             missionNotice.hidden = true;
             preloadMissionAudio(index);
             armSlide(index);
+
+            // Keep browser URL synchronized with displayed device
+            if (typeof getVehicleUrl === 'function') {
+                const canonicalUrl = getVehicleUrl(mi);
+                if (window.location.pathname.startsWith('/devices') && window.location.pathname !== canonicalUrl) {
+                    try { history.replaceState({ page: 'mission', mi: mi, deviceId: VEHICLES[mi]?.id }, '', canonicalUrl); } catch (e) { }
+                }
+            }
         }
 
         missionPrev.addEventListener('click', () => {
             const mi = +missionSlides[currentMissionSlide].dataset.m;
             const grp = missionSlides.filter(s => +s.dataset.m === mi);
             const pos = grp.indexOf(missionSlides[currentMissionSlide]);
-            if (pos > 0) { sfx.back(); showMissionSlide(currentMissionSlide - 1); }
+            if (pos > 0) {
+                sfx.back();
+                showMissionSlide(currentMissionSlide - 1);
+            } else {
+                sfx.back();
+                prevEquipment();
+            }
         });
         const missionCue = document.getElementById('mission-scroll-cue');
         if (missionCue) {
@@ -2518,6 +2600,12 @@
             missionText[currentMissionSlide].forEach(part => { part.node.nodeValue = part.text });
             nextEquipment();
         });
+
+        // Stage next and previous device buttons
+        const stagePrevBtn = document.getElementById('stage-prev-device');
+        const stageNextBtn = document.getElementById('stage-next-device');
+        if (stagePrevBtn) stagePrevBtn.addEventListener('click', () => { sfx.back(); prevEquipment(); });
+        if (stageNextBtn) stageNextBtn.addEventListener('click', () => { sfx.next(); nextEquipment(); });
 
         // Calm backdrop behind the mission slides: slow starfield and drifting rocks
         missionSlides.forEach(f => { if (f.querySelector('figcaption em')) f.querySelector('.im').classList.add('dg'); });
@@ -3196,26 +3284,55 @@
         const VEHICLES = (window.SolvixExplore && window.SolvixExplore.vehicles) || [];
         let currentVehicle = 0, viewerVehicle = -1, pendingViewer = -1;
 
+        const VEHICLE_ALIASES = {
+            'eagle': 0, 'apollo-11': 0, 'apollo-11-eagle': 0, 'lunar-module': 0, 'lunar-rover': 0,
+            'intrepid': 1, 'apollo-12': 1, 'apollo-12-intrepid': 1,
+            'surveyor': 2, 'surveyor-1': 2, 'surveyor-landers': 2, 'surveyor-lander': 2,
+            'viking': 3, 'viking-1': 3, 'viking-2': 3, 'viking-1-2': 3, 'viking-landers': 3,
+            'sojourner': 4, 'sojourner-rover': 4, 'pathfinder': 4,
+            'spirit-opportunity': 5, 'spirit': 5, 'opportunity': 5, 'mars-exploration-rover': 5, 'mer': 5,
+            'phoenix-insight': 6, 'phoenix': 6, 'insight': 6, 'insight-phoenix': 6,
+            'near': 7, 'near-shoemaker': 7, 'shoemaker': 7,
+            'dawn': 8, 'dawn-spacecraft': 8
+        };
+
+        function resolveVehicleIndex(slug) {
+            if (typeof slug === 'number') return Math.max(0, Math.min(VEHICLES.length - 1, slug));
+            if (!slug) return 0;
+            const clean = String(slug).toLowerCase().trim().replace(/^\/+|\/+$/g, '');
+            if (VEHICLE_ALIASES.hasOwnProperty(clean)) return VEHICLE_ALIASES[clean];
+            const num = parseInt(clean, 10);
+            if (!isNaN(num) && num >= 0 && num < VEHICLES.length) return num;
+            const byId = VEHICLES.findIndex(v => v.id.toLowerCase() === clean);
+            if (byId !== -1) return byId;
+            return 0;
+        }
+
+        function getVehicleUrl(mi) {
+            const v = VEHICLES[mi] || VEHICLES[0];
+            return '/devices/' + v.id;
+        }
+
         function groupStart(mi) {
             for (let i = 0; i < missionSlides.length; i++) if (+missionSlides[i].dataset.m === mi) return i;
             return 0;
         }
+
         function enterVehicle(mi) {
             currentVehicle = Math.max(0, Math.min(VEHICLES.length - 1, mi | 0));
             document.body.classList.add('in-mission');
-            // Start at the field before anything is measured, otherwise the new
-            // page looks like it was already scrolled through.
-            window.scrollTo(0, 0);
-            document.documentElement.scrollTop = 0;
-            document.body.scrollTop = 0;
+            jumpToTop();
             showMissionSlide(groupStart(currentVehicle));
+            jumpToTop();
         }
+
         function leaveVehicle() {
             document.body.classList.remove('in-mission');
             if (typeof slideReading !== 'undefined') slideReading = -1;
             viewerVehicle = -1;
             if (window.SolvixViewer) window.SolvixViewer.unmount();
         }
+
         function syncVehicle(mi) {
             const v = VEHICLES[mi];
             if (!v) return;
@@ -3237,35 +3354,71 @@
                 pendingViewer = mi;
             }
         }
+
         window.addEventListener('solvix:viewer-ready', () => {
             if (cur === 'mission' && pendingViewer >= 0) { const mi = pendingViewer; pendingViewer = -1; viewerVehicle = -1; syncVehicle(mi); }
         });
-        function openVehicleFromGlobe(mi) {
+
+        function navigateToDevice(targetMi, options) {
+            options = options || {};
+            const mi = Math.max(0, Math.min(VEHICLES.length - 1, targetMi | 0));
+            const target = VEHICLES[mi];
+            if (!target) return;
+
+            const from = VEHICLES[currentVehicle];
+            const newUrl = getVehicleUrl(mi);
+            try {
+                if (window.location.pathname !== newUrl) {
+                    if (options.replace) {
+                        history.replaceState({ page: 'mission', deviceId: target.id, mi: mi }, '', newUrl);
+                    } else {
+                        history.pushState({ page: 'mission', deviceId: target.id, mi: mi }, '', newUrl);
+                    }
+                }
+            } catch (e) { }
+
+            clearInterval(missionTimer);
+            clearTimeout(missionDelay);
+            clearTimeout(revealDelay);
+            stopVoice();
+
             currentVehicle = mi;
             cur = 'mission';
-            try { if (location.hash.slice(1) !== 'mission') history.pushState(null, '', '#mission'); } catch (e) { }
-            route();
+            jumpToTop();
+
+            if (options.withTransfer && window.SolvixExplore && from && from !== target) {
+                if (window.SolvixHeader) window.SolvixHeader.lock(3200);
+                document.body.classList.add('is-hopping');
+                paintRoute('mission', 'mission');
+                jumpToTop();
+                window.SolvixExplore.transfer(from, target, () => {
+                    jumpToTop();
+                    document.body.classList.remove('is-hopping');
+                    jumpToTop();
+                });
+                return;
+            }
+
+            paintRoute('mission', 'mission');
+            jumpToTop();
         }
+
+        function openVehicleFromGlobe(mi) {
+            navigateToDevice(mi, { withTransfer: false });
+        }
+
         function nextEquipment() {
             if (!VEHICLES.length) return;
-            const from = VEHICLES[currentVehicle];
-            const to = VEHICLES[(currentVehicle + 1) % VEHICLES.length];
-            if (!window.SolvixExplore) { openVehicleFromGlobe((currentVehicle + 1) % VEHICLES.length); return; }
-            // The flight is a page of its own: the machine we leave goes out of
-            // sight, and the ride starts at the top instead of the bottom of the
-            // page the reader had scrolled to.
-            clearInterval(missionTimer); clearTimeout(missionDelay); clearTimeout(revealDelay);
-            stopVoice();
-            if (window.SolvixHeader) window.SolvixHeader.lock(900);
-            jumpToTop();
-            document.body.classList.add('is-hopping');
-            window.SolvixExplore.transfer(from, to, () => {
-                jumpToTop();
-                openVehicleFromGlobe((currentVehicle + 1) % VEHICLES.length);
-                jumpToTop();
-                document.body.classList.remove('is-hopping');
-            });
+            const nextIdx = (currentVehicle + 1) % VEHICLES.length;
+            navigateToDevice(nextIdx, { withTransfer: true });
         }
+
+        function prevEquipment() {
+            if (!VEHICLES.length) return;
+            const prevIdx = (currentVehicle - 1 + VEHICLES.length) % VEHICLES.length;
+            navigateToDevice(prevIdx, { withTransfer: true });
+        }
+
         if (window.SolvixExplore) window.SolvixExplore.init(openVehicleFromGlobe);
 
         // The bar gets out of the way on the way down and comes back on the way up.
@@ -3332,19 +3485,54 @@
         });
 
         const pg = { home: 'home', worlds: 'worlds', mission: 'mission', game: 'game' }, nm = { post: 'Post' };
-        let cur = (location.hash || '#home').slice(1); if (cur === 'translate') cur = 'home';
-        // Instant, with no smooth scroll: the page starts at its top.
+
+        function parseCurrentRoute() {
+            let p = window.location.pathname.replace(/\/$/, '') || '/';
+            let h = (window.location.hash || '').replace(/^#/, '');
+
+            if (p.startsWith('/devices')) {
+                const slug = p.replace(/^\/devices\/?/, '');
+                return {
+                    page: 'mission',
+                    deviceIndex: resolveVehicleIndex(slug || 0),
+                    isDeviceRoute: true
+                };
+            }
+            if (h.startsWith('devices/') || h.startsWith('mission/')) {
+                const slug = h.replace(/^(devices|mission)\//, '');
+                return {
+                    page: 'mission',
+                    deviceIndex: resolveVehicleIndex(slug),
+                    isDeviceRoute: true
+                };
+            }
+            if (p === '/worlds' || h === 'worlds') return { page: 'worlds', deviceIndex: -1, isDeviceRoute: false };
+            if (p === '/game' || h === 'game') return { page: 'game', deviceIndex: -1, isDeviceRoute: false };
+            if (p === '/mission' || h === 'mission') return { page: 'mission', deviceIndex: currentVehicle, isDeviceRoute: true };
+            if (p === '/home' || h === 'home' || p === '/' || p === '/solvix' || p === '/index.html') {
+                return { page: 'home', deviceIndex: -1, isDeviceRoute: false };
+            }
+            return { page: pg[h] || 'home', deviceIndex: -1, isDeviceRoute: false };
+        }
+
+        const bootRoute = parseCurrentRoute();
+        let cur = bootRoute.page;
+        if (bootRoute.isDeviceRoute) {
+            currentVehicle = bootRoute.deviceIndex;
+        }
+
         function jumpToTop() {
             const root = document.documentElement;
             const previous = root.style.scrollBehavior;
             root.style.scrollBehavior = 'auto';
             window.scrollTo(0, 0);
-            document.body.scrollTop = 0;
+            if (document.body) document.body.scrollTop = 0;
+            root.scrollTop = 0;
+            const mis = document.getElementById('mission');
+            if (mis) mis.scrollTop = 0;
             root.style.scrollBehavior = previous;
         }
-        // The real page swap. Whatever happens around it, this is the only place
-        // that changes what the visitor sees, so a cancelled flight can never
-        // leave two pages on screen.
+
         let taglineBooted = false;
         function clearTagline() {
             clearInterval(tm);
@@ -3355,17 +3543,28 @@
             const from = leaving ? leaving.id : '';
             if (from === 'home' && id !== 'home') clearTagline();
             document.querySelectorAll('.page').forEach(p => p.classList.toggle('on', p.id === id));
-            document.querySelectorAll('#nav a').forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#' + h));
+            document.querySelectorAll('#nav a').forEach(a => {
+                const href = a.getAttribute('href');
+                const isMatch = href === '#' + h || href === '/' + h || (h === 'home' && (href === '/' || href === '#home'));
+                a.classList.toggle('on', isMatch);
+            });
             if (id === 'soon') document.getElementById('st2').textContent = nm[h] || 'Page';
             jumpToTop();
             clearTimeout(tw);
             if (id === 'home' && from !== 'home') {
-                // Nothing to erase on arrival, so it starts typing straight away.
                 clearTagline();
                 tw = setTimeout(type, taglineBooted ? 320 : 1800);
             }
             if (id === 'home') taglineBooted = true;
-            if (id === 'mission') enterVehicle(currentVehicle); else { clearInterval(missionTimer); clearTimeout(missionDelay); stopVoice(); leaveVehicle(); }
+            if (id === 'mission') {
+                enterVehicle(currentVehicle);
+                const expectedUrl = getVehicleUrl(currentVehicle);
+                if (window.location.pathname.startsWith('/devices') && window.location.pathname !== expectedUrl) {
+                    try { history.replaceState({ page: 'mission', mi: currentVehicle, deviceId: VEHICLES[currentVehicle]?.id }, '', expectedUrl); } catch (e) { }
+                }
+            } else {
+                clearInterval(missionTimer); clearTimeout(missionDelay); stopVoice(); leaveVehicle();
+            }
             if (window.SolvixExplore) { if (id === 'worlds') window.SolvixExplore.show(); else window.SolvixExplore.hide(); }
             document.body.classList.toggle('rocks', id !== 'home');
             GM.show(id === 'game' ? 'menu' : 'none');
@@ -3378,14 +3577,12 @@
         (function () {
             const body = document.body;
             const ORDER = ['home', 'worlds', 'mission', 'game', 'post'];
-            // out = where the page we leave travels to; in = where the new one comes from.
-            // [scale, x %, y %] — the same moves used by the star layers above.
             const LOOK = {
-                home: { out: [.94, 0, -1.6], in: [1.07, 0, 2.2] },     // pull back into the hub
-                worlds: { out: [1.08, 0, 0], in: [.9, 0, 0] },          // push forward into the field
-                mission: { out: [.97, -3.4, 0], in: [.97, 3.4, 0] },    // rail along the deck
-                game: { out: [.97, 0, 2.6], in: [1.04, 0, -2.6] },      // climb the launch tower
-                soon: { out: [.98, 1.6, 0], in: [1.03, 0, 0] }          // drift to the holding page
+                home: { out: [.94, 0, -1.6], in: [1.07, 0, 2.2] },
+                worlds: { out: [1.08, 0, 0], in: [.9, 0, 0] },
+                mission: { out: [.97, -3.4, 0], in: [.97, 3.4, 0] },
+                game: { out: [.97, 0, 2.6], in: [1.04, 0, -2.6] },
+                soon: { out: [.98, 1.6, 0], in: [1.03, 0, 0] }
             };
             const nav = document.getElementById('nav');
             const ink = document.createElement('i');
@@ -3406,7 +3603,11 @@
                 if (!animate) { void ink.offsetWidth; ink.style.transition = ''; }
             }
             function lightTab(h) {
-                document.querySelectorAll('#nav a').forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#' + h));
+                document.querySelectorAll('#nav a').forEach(a => {
+                    const href = a.getAttribute('href');
+                    const isMatch = href === '#' + h || href === '/' + h || (h === 'home' && (href === '/' || href === '#home'));
+                    a.classList.toggle('on', isMatch);
+                });
                 placeInk(true);
             }
             function wipe() {
@@ -3416,7 +3617,6 @@
                 ['home', 'worlds', 'mission', 'game', 'soon'].forEach(d => body.classList.remove('nav-to-' + d));
             }
             function fly(h, id, paint) {
-                // Rapid tab switching: land the current move first, then leave again.
                 if (flying) { wipe(); paint(); flying = false; }
                 const look = LOOK[id] || LOOK.soon;
                 const flip = ORDER.indexOf(h) - ORDER.indexOf(lastKey) < 0 ? -1 : 1;
@@ -3427,12 +3627,12 @@
                 body.style.setProperty('--in-x', (look.in[1] * flip) + '%');
                 body.style.setProperty('--in-y', look.in[2] + '%');
                 wipe();
-                lightTab(h);                       // the header answers the click at once
-                void body.offsetWidth;             // restart the star layers from zero
+                lightTab(h);
+                void body.offsetWidth;
                 body.classList.add('nav-flying', 'nav-out', 'nav-to-' + id, flip < 0 ? 'nav-dir-l' : 'nav-dir-r');
                 flying = true;
                 swapTimer = setTimeout(function () {
-                    paint();                       // swap at the darkest point of the pass
+                    paint();
                     lastKey = h;
                     body.classList.remove('nav-out');
                     body.classList.add('nav-in');
@@ -3452,28 +3652,88 @@
         let routeStamp = { h: '', t: -1e9 };
         function route() {
             const now = performance.now();
-            if (cur === routeStamp.h && now - routeStamp.t < 90) return;
+            const routeInfo = parseCurrentRoute();
+            cur = routeInfo.page;
+            if (routeInfo.isDeviceRoute && routeInfo.deviceIndex !== currentVehicle) {
+                currentVehicle = routeInfo.deviceIndex;
+            }
+            if (cur === routeStamp.h && now - routeStamp.t < 90 && !routeInfo.isDeviceRoute) return;
             routeStamp = { h: cur, t: now };
             const h = cur; const id = pg[h] || 'soon';
             const current = document.querySelector('.page.on');
-            const same = current && current.id === id;
+            const same = current && current.id === id && (!routeInfo.isDeviceRoute || currentVehicle === viewerVehicle);
             if (!window.SolvixNav || !window.SolvixNav.canFly() || same) { paintRoute(h, id); return; }
             window.SolvixNav.fly(h, id, function () { paintRoute(h, id); });
         }
-        // In-page navigation: works even where the URL hash can't change (previews, sandboxed frames)
+
+        // Unified click navigation
         document.addEventListener('click', e => {
-            const a = e.target.closest('a[href^="#"]');
+            const a = e.target.closest('a[href^="#"], a[href^="/"]');
             if (!a) return;
-            e.preventDefault();
-            const h = a.getAttribute('href').slice(1);
-            if (!h) return;
-            cur = h;
-            // A real history entry: Back and Forward now travel between pages too.
-            try { if (location.hash.slice(1) !== h) history.pushState(null, '', '#' + h); } catch (err) { }
-            route();
+            const href = a.getAttribute('href');
+            if (!href || href === '#' || href.startsWith('#!') || a.target === '_blank') return;
+
+            // Device link
+            if (href.startsWith('/devices')) {
+                e.preventDefault();
+                const slug = href.replace(/^\/devices\/?/, '');
+                navigateToDevice(resolveVehicleIndex(slug));
+                return;
+            }
+
+            // Worlds link
+            if (href === '/worlds' || href === '#worlds') {
+                e.preventDefault();
+                cur = 'worlds';
+                try { if (window.location.pathname !== '/worlds') history.pushState({ page: 'worlds' }, '', '/worlds'); } catch(err){}
+                route();
+                return;
+            }
+
+            // Game link
+            if (href === '/game' || href === '#game') {
+                e.preventDefault();
+                cur = 'game';
+                try { if (window.location.pathname !== '/game') history.pushState({ page: 'game' }, '', '/game'); } catch(err){}
+                route();
+                return;
+            }
+
+            // Home link
+            if (href === '/' || href === '#home' || href === '/#home') {
+                e.preventDefault();
+                cur = 'home';
+                try { if (window.location.pathname !== '/') history.pushState({ page: 'home' }, '', '/'); } catch(err){}
+                route();
+                return;
+            }
+
+            // Other hash links
+            if (href.startsWith('#')) {
+                e.preventDefault();
+                const h = href.slice(1);
+                if (!h) return;
+                cur = h;
+                try { if (location.hash.slice(1) !== h) history.pushState(null, '', '#' + h); } catch (err) { }
+                route();
+            }
         });
-        addEventListener('hashchange', () => { cur = (location.hash || '#home').slice(1); if (cur === 'translate') cur = 'home'; route(); });
-        addEventListener('popstate', () => { cur = (location.hash || '#home').slice(1); if (cur === 'translate') cur = 'home'; route(); });
+
+        addEventListener('hashchange', () => { route(); });
+        addEventListener('popstate', (e) => {
+            const routeInfo = parseCurrentRoute();
+            cur = routeInfo.page;
+            if (routeInfo.isDeviceRoute) {
+                const targetMi = routeInfo.deviceIndex;
+                currentVehicle = targetMi;
+                jumpToTop();
+                paintRoute('mission', 'mission');
+                jumpToTop();
+            } else {
+                paintRoute(cur, pg[cur] || 'home');
+            }
+        });
+
         route();
     </script>
 </body>
