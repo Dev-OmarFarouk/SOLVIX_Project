@@ -2439,16 +2439,10 @@
         /* so nothing is downloaded and nothing belongs to anyone else.        */
         /* ------------------------------------------------------------------ */
         const SolvixAudio = (() => {
-            const LS_KEY = 'solvix.audio';
+            /* Sound is part of the visit: it is on every time the site opens, and
+               only the visitor's own click in the header can silence it. */
             const prefs = { music: true, fx: true };
-            try {
-                const saved = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
-                if (saved && typeof saved === 'object') {
-                    if (typeof saved.music === 'boolean') prefs.music = saved.music;
-                    if (typeof saved.fx === 'boolean') prefs.fx = saved.fx;
-                }
-            } catch (e) { }
-            const remember = () => { try { localStorage.setItem(LS_KEY, JSON.stringify({ music: prefs.music, fx: prefs.fx })) } catch (e) { } };
+            try { localStorage.removeItem('solvix.audio') } catch (e) { }
 
             sfx.on = prefs.fx;
 
@@ -2854,14 +2848,12 @@
 
             function setMusic(v) {
                 prefs.music = !!v;
-                remember();
                 syncUI();
                 if (prefs.music) startMusic(); else stopMusic();
             }
             function setFx(v) {
                 prefs.fx = !!v;
                 sfx.on = prefs.fx;
-                remember();
                 syncUI();
                 if (prefs.fx) ui();
             }
@@ -2875,10 +2867,14 @@
                 window.removeEventListener('pointerdown', unlock, true);
                 window.removeEventListener('keydown', unlock, true);
                 window.removeEventListener('touchstart', unlock, true);
+                window.removeEventListener('touchmove', unlock, true);
+                window.removeEventListener('wheel', unlock, true);
             };
             window.addEventListener('pointerdown', unlock, true);
             window.addEventListener('keydown', unlock, true);
             window.addEventListener('touchstart', unlock, true);
+            window.addEventListener('touchmove', unlock, { capture: true, passive: true });
+            window.addEventListener('wheel', unlock, { capture: true, passive: true });
 
             // No music in a hidden tab.
             document.addEventListener('visibilitychange', () => {
