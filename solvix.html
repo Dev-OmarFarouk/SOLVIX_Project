@@ -2212,7 +2212,6 @@
                 <button class="pz-btn" id="pz-hint" type="button">💡 Hint</button>
                 <button class="pz-btn" id="pz-shuffle" type="button">🔀 Shuffle</button>
                 <button class="pz-btn" id="pz-new" type="button">🔁 New puzzle</button>
-                <button class="pz-btn" id="pz-snd" type="button" aria-label="Sound">🔊</button>
                 <div class="pz-stats"><span id="pz-time">⏱ 0:00</span><span id="pz-left"><svg class="pxi pxi-sm" viewBox="0 0 14 14" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="5" y="1" width="4" height="1" fill="#37b6ee"/><rect x="4" y="2" width="6" height="1" fill="#37b6ee"/><rect x="2" y="3" width="1" height="1" fill="#37b6ee"/><rect x="3" y="3" width="1" height="1" fill="#8fe4ff"/><rect x="4" y="3" width="6" height="1" fill="#37b6ee"/><rect x="2" y="4" width="1" height="1" fill="#8fe4ff"/><rect x="3" y="4" width="9" height="1" fill="#37b6ee"/><rect x="1" y="5" width="3" height="1" fill="#8fe4ff"/><rect x="4" y="5" width="9" height="1" fill="#37b6ee"/><rect x="1" y="6" width="12" height="1" fill="#37b6ee"/><rect x="1" y="7" width="10" height="1" fill="#37b6ee"/><rect x="1" y="8" width="10" height="1" fill="#37b6ee"/><rect x="1" y="9" width="12" height="1" fill="#37b6ee"/><rect x="1" y="10" width="12" height="1" fill="#37b6ee"/><rect x="2" y="11" width="10" height="1" fill="#37b6ee"/><rect x="3" y="12" width="8" height="1" fill="#14648f"/></svg><i id="pz-count">0/0</i></span></div>
             </div>
             <div id="pz-wrap">
@@ -2234,7 +2233,6 @@
                     <button class="pz-btn" id="hb-hint" type="button">💡 Hint</button>
                     <button class="pz-btn" id="hb-shuffle" type="button">🔀 Shuffle</button>
                     <button class="pz-btn" id="hb-reset" type="button">🔁 Restart</button>
-                    <button class="pz-btn" id="hb-snd" type="button" aria-label="Sound">🔊</button>
                     <div class="pz-stats"><span id="hb-time">⏱ 0:00</span><span id="hb-left"><svg class="pxi pxi-sm" viewBox="0 0 14 14" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><rect x="4" y="1" width="4" height="1" fill="#cfe3f5"/><rect x="3" y="2" width="2" height="1" fill="#cfe3f5"/><rect x="7" y="2" width="2" height="1" fill="#cfe3f5"/><rect x="3" y="3" width="2" height="1" fill="#cfe3f5"/><rect x="7" y="3" width="2" height="1" fill="#cfe3f5"/><rect x="4" y="4" width="4" height="1" fill="#cfe3f5"/><rect x="5" y="5" width="2" height="1" fill="#ff8a1f"/><rect x="5" y="6" width="2" height="1" fill="#ff8a1f"/><rect x="6" y="7" width="2" height="1" fill="#ff8a1f"/><rect x="6" y="8" width="2" height="1" fill="#ff8a1f"/><rect x="7" y="9" width="2" height="1" fill="#ff8a1f"/><rect x="7" y="10" width="2" height="1" fill="#ff8a1f"/><rect x="8" y="11" width="2" height="1" fill="#ff8a1f"/><rect x="8" y="12" width="2" height="1" fill="#ff8a1f"/></svg><i id="hb-count">0/0</i></span></div>
                 </div>
                 <div id="hb-wrap">
@@ -2804,12 +2802,6 @@
             const musicSwitch = document.getElementById('snd-music');
             const fxSwitch = document.getElementById('snd-fx');
 
-            function syncFxBadges() {
-                document.querySelectorAll('#pz-snd, #hb-snd').forEach(el => {
-                    el.textContent = prefs.fx ? '\u{1F50A}' : '\u{1F507}';
-                    el.setAttribute('aria-pressed', String(prefs.fx));
-                });
-            }
             function syncUI() {
                 if (musicSwitch) musicSwitch.setAttribute('aria-checked', String(prefs.music));
                 if (fxSwitch) fxSwitch.setAttribute('aria-checked', String(prefs.fx));
@@ -2818,7 +2810,6 @@
                     btn.classList.toggle('is-off', silent);
                     btn.setAttribute('aria-label', silent ? 'Audio off \u2013 open sound settings' : 'Audio settings');
                 }
-                syncFxBadges();
             }
             function openPanel(open) {
                 if (!panel || !btn) return;
@@ -3465,8 +3456,6 @@
                 $('pz-shuffle').onclick = () => { if (st && !won) st.pieces.forEach(p => { if (!p.locked) scatter(p) }) };
                 $('pz-new').onclick = () => build();
                 $('pz-next').onclick = () => { dev = dev < 8 ? dev + 1 : 0; build(); scrollTo({ top: 0, behavior: 'smooth' }) };
-                const snd = $('pz-snd'); snd.textContent = sfx.on ? '🔊' : '🔇';
-                snd.onclick = () => { SolvixAudio.toggleFx(); snd.textContent = sfx.on ? '🔊' : '🔇' };
                 let rt, lastW = 0;
                 addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { if (!active || !st) return; const w = Math.floor($('pz-stage').clientWidth); if (Math.abs(w - lastW) < 8) return; lastW = w; build({ edges: st.E, locked: new Set(st.pieces.filter(p => p.locked).map(p => p.r + ',' + p.c)) }) }, 300) });
                 dev = [0, 1, 2, 3, 4, 5, 6, 7, 8].find(i => !done.includes(i)) ?? 0;
@@ -3810,7 +3799,6 @@
                     }
                 };
                 $('hb-rebuild').onclick = () => showAssembly(true);
-                const snd = $('hb-snd'); snd.textContent = sfx.on ? '🔊' : '🔇'; snd.onclick = () => { SolvixAudio.toggleFx(); snd.textContent = sfx.on ? '🔊' : '🔇' };
                 const nextCraft = LV.findIndex((_, i) => !done.includes(i));
                 li = nextCraft >= 0 ? nextCraft : 0;
                 build();
