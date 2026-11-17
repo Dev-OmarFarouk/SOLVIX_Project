@@ -367,6 +367,11 @@
         /* Ship starts at the left edge UNDER the "Start Your Journey" button (nose right), rises across Earth, passes slowly IN FRONT of the astronaut and leaves on the right */
         /* Cinematic Homepage Spaceship & Dynamic Plasma Engine VFX */
         .ship {
+            /* The hull is anchored by its bottom edge on this line, which is the top
+               of the astronaut's helmet plus a safety margin, so the ship can never
+               cross his image at any screen size. */
+            --clearA: calc(var(--w) * 0.1195 + 26px);
+            --bobScale: 1;
             position: absolute;
             z-index: 3;
             left: 36%;
@@ -393,7 +398,7 @@
             z-index: 3;
             pointer-events: none;
             mix-blend-mode: screen;
-            animation: engineThrottle 20s ease-in-out infinite;
+            animation: engineThrottle 20s linear infinite;
         }
 
         /* Thruster Nozzle Anchors (Left: 13.1% X, 54.1% Y; Right: 25.9% X, 49.6% Y) */
@@ -524,69 +529,87 @@
         }
 
         @keyframes engineThrottle {
-            /* The glow never dies while the ship is on screen; 0% and 100% match so
-               the loop seam cannot flash. */
-            0%, 100% {
-                opacity: 0.9;
-                filter: brightness(1) drop-shadow(0 0 9px rgba(0, 200, 255, 0.5));
-                transform: scale(0.9);
+            /* Nitro builds with the speed: a dim idle glow during the slow drift, then
+               longer, brighter plumes as the ship accelerates and leaves. */
+            0% {
+                opacity: 0.55;
+                filter: brightness(0.7) drop-shadow(0 0 5px rgba(0, 200, 255, 0.28));
+                transform: scale(0.72);
             }
-            30% {
+            20% {
+                opacity: 0.7;
+                filter: brightness(0.85) drop-shadow(0 0 8px rgba(0, 205, 255, 0.38));
+                transform: scale(0.82);
+            }
+            45% {
+                opacity: 0.85;
+                filter: brightness(1.05) drop-shadow(0 0 12px rgba(0, 210, 255, 0.55));
+                transform: scale(1);
+            }
+            70% {
+                opacity: 0.95;
+                filter: brightness(1.3) drop-shadow(0 0 18px rgba(0, 220, 255, 0.75));
+                transform: scale(1.22);
+            }
+            88% {
                 opacity: 1;
-                filter: brightness(1.35) drop-shadow(0 0 16px rgba(0, 220, 255, 0.8));
-                transform: scale(1.2);
+                filter: brightness(1.55) drop-shadow(0 0 26px rgba(0, 230, 255, 0.9));
+                transform: scale(1.42);
             }
-            55% {
-                opacity: 0.96;
-                filter: brightness(1.18) drop-shadow(0 0 12px rgba(0, 210, 255, 0.62));
-                transform: scale(1.08);
-            }
-            80% {
-                opacity: 0.92;
-                filter: brightness(1.06) drop-shadow(0 0 8px rgba(0, 180, 255, 0.42));
-                transform: scale(0.96);
+            100% {
+                opacity: 1;
+                filter: brightness(1.7) drop-shadow(0 0 32px rgba(0, 236, 255, 1));
+                transform: scale(1.5);
             }
         }
 
         @keyframes cinematicFlight {
-            /* One continuous cruise at a constant speed. The ship enters low on the
-               left, banks up over the astronaut and slips away on the right. The
-               arc peaks well under the header band (about 120px of clearance at
-               1280x800), so no part of the hull is ever hidden behind it, and the
-               ship is always travelling — it no longer hangs at the top of a curve
-               that used to sit under the header. */
+            /* A slow drift that throttles up: every step of x is bigger than the one
+               before it (about ten times faster at the exit than at the entry), so the
+               ship never holds one speed and never comes to rest. Its bottom edge sits
+               above the astronaut's helmet the whole way, and the bob only ever lifts
+               it further, so it never crosses his picture. */
             0% {
-                transform: translate(calc(-136vw + var(--w) * 0.64), calc(var(--w) * 0.06)) scale(0.86) rotate(-3.4deg);
+                transform: translate(calc(-136vw + var(--w) * 0.64), calc(-100% - var(--clearA) - 0px)) rotate(-1.2deg) scale(0.94);
                 opacity: 0;
             }
-            4% {
-                transform: translate(calc(-130vw + var(--w) * 0.64), calc(var(--w) * 0.025)) scale(0.88) rotate(-3.3deg);
+            6% {
+                transform: translate(calc(-135vw + var(--w) * 0.64), calc(-100% - var(--clearA) - calc(1px * var(--bobScale)))) rotate(-1.5deg) scale(0.94);
                 opacity: 1;
             }
             12% {
-                transform: translate(calc(-119vw + var(--w) * 0.64), calc(var(--w) * -0.043)) scale(0.9) rotate(-3deg);
+                transform: translate(calc(-133vw + var(--w) * 0.64), calc(-100% - var(--clearA) - calc(3px * var(--bobScale)))) rotate(-1.9deg) scale(0.94);
             }
-            26% {
-                transform: translate(calc(-99vw + var(--w) * 0.64), calc(var(--w) * -0.144)) scale(0.95) rotate(-2.1deg);
+            20% {
+                transform: translate(calc(-128vw + var(--w) * 0.64), calc(-100% - var(--clearA) - calc(6px * var(--bobScale)))) rotate(-2.3deg) scale(0.94);
+            }
+            30% {
+                transform: translate(calc(-120vw + var(--w) * 0.64), calc(-100% - var(--clearA) - calc(10px * var(--bobScale)))) rotate(-2.4deg) scale(0.94);
             }
             40% {
-                transform: translate(calc(-79vw + var(--w) * 0.64), calc(var(--w) * -0.206)) scale(0.97) rotate(-1deg);
+                transform: translate(calc(-109vw + var(--w) * 0.64), calc(-100% - var(--clearA) - calc(13px * var(--bobScale)))) rotate(-1.6deg) scale(0.94);
             }
-            54% {
-                transform: translate(calc(-59vw + var(--w) * 0.64), calc(var(--w) * -0.218)) scale(0.98) rotate(0.4deg);
+            50% {
+                transform: translate(calc(-95vw + var(--w) * 0.64), calc(-100% - var(--clearA) - calc(14px * var(--bobScale)))) rotate(-0.4deg) scale(0.94);
             }
-            68% {
-                transform: translate(calc(-39vw + var(--w) * 0.64), calc(var(--w) * -0.176)) scale(0.96) rotate(1.9deg);
+            60% {
+                transform: translate(calc(-79vw + var(--w) * 0.64), calc(-100% - var(--clearA) - calc(13px * var(--bobScale)))) rotate(1.2deg) scale(0.94);
             }
-            82% {
-                transform: translate(calc(-20vw + var(--w) * 0.64), calc(var(--w) * -0.09)) scale(0.92) rotate(2.9deg);
+            70% {
+                transform: translate(calc(-61vw + var(--w) * 0.64), calc(-100% - var(--clearA) - calc(10px * var(--bobScale)))) rotate(2.2deg) scale(0.94);
+            }
+            80% {
+                transform: translate(calc(-41vw + var(--w) * 0.64), calc(-100% - var(--clearA) - calc(6px * var(--bobScale)))) rotate(2.4deg) scale(0.94);
+            }
+            88% {
+                transform: translate(calc(-23vw + var(--w) * 0.64), calc(-100% - var(--clearA) - calc(3px * var(--bobScale)))) rotate(1.8deg) scale(0.94);
             }
             94% {
-                transform: translate(calc(-3vw + var(--w) * 0.64), calc(var(--w) * -0.008)) scale(0.88) rotate(3.3deg);
+                transform: translate(calc(-9vw + var(--w) * 0.64), calc(-100% - var(--clearA) - calc(1px * var(--bobScale)))) rotate(1deg) scale(0.94);
                 opacity: 1;
             }
             100% {
-                transform: translate(calc(6vw + var(--w) * 0.64), calc(var(--w) * 0.06)) scale(0.86) rotate(3.4deg);
+                transform: translate(calc(6vw + var(--w) * 0.64), calc(-100% - var(--clearA) - 0px)) rotate(0.4deg) scale(0.94);
                 opacity: 0;
             }
         }
@@ -597,10 +620,39 @@
             }
         }
 
+        /* Short screens: the ship shrinks and stops bobbing so the gap between the
+           header and the astronaut's helmet can still hold it. */
+        @media (max-height: 780px) {
+            .ship {
+                width: min(40%, 350px)
+            }
+        }
+        @media (max-height: 700px) {
+            .ship {
+                --bobScale: 0.4
+            }
+        }
+        @media (max-height: 680px) {
+            .ship {
+                width: min(34%, 300px)
+            }
+        }
+        @media (max-height: 620px) {
+            .ship {
+                --bobScale: 0
+            }
+        }
+        @media (max-height: 640px) {
+            .ship {
+                width: min(30%, 270px)
+            }
+        }
+
+
         @media (prefers-reduced-motion: reduce) {
             .ship {
                 animation: none;
-                transform: translate(calc(-50vw + var(--w) * 0.64), calc(var(--w) * -0.2)) scale(0.95) rotate(-1deg);
+                transform: translate(calc(-50vw + var(--w) * 0.64), calc(-100% - var(--clearA) - 8px)) scale(0.94) rotate(-1deg);
                 opacity: 0.95;
             }
             .ship-engines {
