@@ -1158,7 +1158,7 @@
         .craft-label i { width: 6px; height: 6px; border-radius: 50%; background: var(--cy); box-shadow: 0 0 10px var(--cy) }
         @media (prefers-reduced-motion: reduce) { .craft-label { transition: none } }
 
-        .mis-zone { position: absolute; left: 50%; top: 50%; z-index: 2; width: 46vmin; height: 46vmin; transform: translate(-50%, -50%); border-radius: 18px; cursor: grab; touch-action: none }
+        .mis-zone { position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; cursor: grab; touch-action: none }
         .mis-zone:active { cursor: grabbing }
         .mis-stage-veil { position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(180deg, rgba(3, 10, 20, .72), transparent 26%, transparent 52%, rgba(3, 10, 20, .92)) }
         .mis-stage-copy { position: absolute; left: 0; right: 0; bottom: 0; z-index: 3; padding: 0 clamp(20px, 4vw, 48px) clamp(20px, 3vh, 34px); pointer-events: none }
@@ -1554,8 +1554,8 @@
                     <span class="mis-world" id="mission-world">The Moon · Sea of Tranquility</span>
                     <h2 id="mission-title">Apollo Lunar Modules</h2>
                     <p class="sub" id="mission-sub">Meet Eagle, the first crewed vehicle to land on the Moon.</p>
-                    <button type="button" class="mis-scroll-cue" id="mission-scroll-cue" aria-label="Explore this mission story">
-                        <span>Explore this mission</span>
+                    <button type="button" class="mis-scroll-cue" id="mission-scroll-cue" aria-label="Read about it">
+                        <span>Read about it</span>
                         <svg class="mis-cue-arrow" viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                             <line x1="8" y1="2" x2="8" y2="13"></line>
                             <polyline points="4 9 8 13 12 9"></polyline>
