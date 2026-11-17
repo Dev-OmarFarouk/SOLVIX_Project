@@ -139,7 +139,11 @@
 
         html {
             scroll-padding-top: env(safe-area-inset-top, 0px);
-            scroll-behavior: smooth
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+            scrollbar-gutter: stable;
+            width: 100%;
+            max-width: 100%;
         }
 
         * {
@@ -154,8 +158,10 @@
             font-size: var(--fs-body);
             font-weight: var(--fw-regular);
             line-height: var(--lh-body);
-            letter-spacing: 0
+            letter-spacing: 0;
             overflow-x: hidden;
+            width: 100%;
+            max-width: 100%;
             min-height: 100vh
         }
 
@@ -298,10 +304,21 @@
         }
 
 
+        main {
+            display: block;
+            position: relative;
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
         .page {
             position: relative;
             z-index: 5;
-            display: none
+            display: none;
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
         }
 
         .page.on {
@@ -1466,9 +1483,16 @@
         }
 
         /* The pages themselves: out to depth, then settled back into focus. */
+        body.nav-flying,
+        body.nav-out,
+        body.nav-in {
+            overflow-x: hidden !important;
+        }
+
         body.nav-out .page.on {
             animation: navPageOut .3s cubic-bezier(.4, 0, .78, .2) forwards;
-            will-change: transform, opacity
+            will-change: transform, opacity;
+            overflow-x: hidden;
         }
         @keyframes navPageOut {
             to {
@@ -1478,7 +1502,8 @@
         }
         body.nav-in .page.on {
             animation: navPageIn .46s cubic-bezier(.16, .84, .26, 1) both;
-            will-change: transform, opacity
+            will-change: transform, opacity;
+            overflow-x: hidden;
         }
         @keyframes navPageIn {
             from {
