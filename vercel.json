@@ -1,53 +1,9 @@
 {
-  "version": 2,
-  "cleanUrls": true,
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "trailingSlash": false,
   "rewrites": [
     {
-      "source": "/devices/assets/(.*)",
-      "destination": "/assets/$1"
-    },
-    {
-      "source": "/devices/models/(.*)",
-      "destination": "/models/$1"
-    },
-    {
-      "source": "/devices/draco/(.*)",
-      "destination": "/draco/$1"
-    },
-    {
-      "source": "/devices/textures/(.*)",
-      "destination": "/textures/$1"
-    },
-    {
-      "source": "/devices/js/(.*)",
-      "destination": "/js/$1"
-    },
-    {
-      "source": "/devices/(.*)",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/devices",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/worlds",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/game",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/mission",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/solvix",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/",
+      "source": "/(.*)",
       "destination": "/index.html"
     }
   ],

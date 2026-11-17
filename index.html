@@ -847,49 +847,6 @@
         }
 
         
-        /* Stage Device Switcher */
-        .mis-tools {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .mis-device-nav {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(14, 25, 45, 0.75);
-            border: 1px solid rgba(37, 182, 255, 0.4);
-            border-radius: 999px;
-            padding: 3px 10px;
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-        }
-        .mis-nav-arrow {
-            background: transparent;
-            border: none;
-            color: #8fa3bd;
-            font-size: 20px;
-            line-height: 1;
-            cursor: pointer;
-            padding: 2px 6px;
-            border-radius: 4px;
-            transition: color .2s, transform .15s;
-        }
-        .mis-nav-arrow:hover {
-            color: #00f0ff;
-            transform: scale(1.2);
-        }
-        .mis-nav-device-name {
-            font-family: var(--font-display, monospace);
-            font-size: 13px;
-            font-weight: 500;
-            letter-spacing: 0.05em;
-            color: #e7f0fb;
-            min-width: 44px;
-            text-align: center;
-            user-select: none;
-        }
-
         /* MISSION */
         .mis {
             max-width: 900px;
@@ -1893,11 +1850,6 @@
                 </div>
                 <div class="mis-tools">
                     <a class="mis-back" href="/worlds">← Explore by Worlds</a>
-                    <div class="mis-device-nav" aria-label="Device switcher">
-                        <button type="button" class="mis-nav-arrow mis-nav-prev" id="stage-prev-device" aria-label="Previous device" title="Previous device">‹</button>
-                        <span class="mis-nav-device-name" id="stage-device-indicator">1 / 9</span>
-                        <button type="button" class="mis-nav-arrow mis-nav-next" id="stage-next-device" aria-label="Next device" title="Next device">›</button>
-                    </div>
                 </div>
                 <div class="mis-model-loading" id="mission-loading">Loading the model…</div>
             </div>
@@ -2521,29 +2473,16 @@
             missionTitle.textContent = missions[mi].t; missionSub.textContent = missions[mi].s;
             missionProgress.textContent = `${pos + 1} / ${grp.length}`;
 
-            // Update stage device indicator
-            const ind = document.getElementById('stage-device-indicator');
-            if (ind && VEHICLES.length) ind.textContent = `${mi + 1} / ${VEHICLES.length}`;
-
             const lastOfGroup = pos === grp.length - 1;
             const nextMachine = VEHICLES[(mi + 1) % VEHICLES.length];
-            const prevMachine = VEHICLES[(mi - 1 + VEHICLES.length) % VEHICLES.length];
 
             missionNext.textContent = lastOfGroup ? 'Next equipment · ' + (nextMachine ? nextMachine.name : '') + ' »' : 'Next page »';
             missionNext.disabled = false;
             missionNext.hidden = false;
             missionNext.classList.toggle('is-transfer', lastOfGroup);
 
-            // Previous button allows navigating to previous equipment when at first slide
-            if (pos === 0) {
-                missionPrev.textContent = '« Previous: ' + (prevMachine ? prevMachine.name : 'equipment');
-                missionPrev.disabled = false;
-                missionPrev.classList.add('is-transfer');
-            } else {
-                missionPrev.textContent = '« Previous page';
-                missionPrev.disabled = false;
-                missionPrev.classList.remove('is-transfer');
-            }
+            // Back only walks the pages of this device: the first page is the start.
+            missionPrev.disabled = pos === 0;
 
             syncVehicle(mi);
             missionNotice.hidden = true;
@@ -2563,13 +2502,7 @@
             const mi = +missionSlides[currentMissionSlide].dataset.m;
             const grp = missionSlides.filter(s => +s.dataset.m === mi);
             const pos = grp.indexOf(missionSlides[currentMissionSlide]);
-            if (pos > 0) {
-                sfx.back();
-                showMissionSlide(currentMissionSlide - 1);
-            } else {
-                sfx.back();
-                prevEquipment();
-            }
+            if (pos > 0) { sfx.back(); showMissionSlide(currentMissionSlide - 1); }
         });
         const missionCue = document.getElementById('mission-scroll-cue');
         if (missionCue) {
@@ -2600,12 +2533,6 @@
             missionText[currentMissionSlide].forEach(part => { part.node.nodeValue = part.text });
             nextEquipment();
         });
-
-        // Stage next and previous device buttons
-        const stagePrevBtn = document.getElementById('stage-prev-device');
-        const stageNextBtn = document.getElementById('stage-next-device');
-        if (stagePrevBtn) stagePrevBtn.addEventListener('click', () => { sfx.back(); prevEquipment(); });
-        if (stageNextBtn) stageNextBtn.addEventListener('click', () => { sfx.next(); nextEquipment(); });
 
         // Calm backdrop behind the mission slides: slow starfield and drifting rocks
         missionSlides.forEach(f => { if (f.querySelector('figcaption em')) f.querySelector('.im').classList.add('dg'); });
@@ -3413,12 +3340,6 @@
             navigateToDevice(nextIdx, { withTransfer: true });
         }
 
-        function prevEquipment() {
-            if (!VEHICLES.length) return;
-            const prevIdx = (currentVehicle - 1 + VEHICLES.length) % VEHICLES.length;
-            navigateToDevice(prevIdx, { withTransfer: true });
-        }
-
         if (window.SolvixExplore) window.SolvixExplore.init(openVehicleFromGlobe);
 
         // The bar gets out of the way on the way down and comes back on the way up.
@@ -3514,6 +3435,10 @@
             }
             return { page: pg[h] || 'home', deviceIndex: -1, isDeviceRoute: false };
         }
+
+        // A refresh must open the device page at its top, not where the last visit
+        // happened to be scrolled to.
+        if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 
         const bootRoute = parseCurrentRoute();
         let cur = bootRoute.page;
