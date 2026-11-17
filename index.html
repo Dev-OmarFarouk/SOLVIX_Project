@@ -147,6 +147,23 @@
             max-width: 100%;
         }
 
+        /* The page bar is part of the frame: it stays put instead of flashing in
+           and out on the right edge whenever a tab with a different height opens.
+           Thin and themed so it reads as part of the site, not as a glitch. */
+        html {
+            overflow-y: scroll;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(37, 182, 255, .5) rgba(4, 12, 26, .85);
+        }
+        html::-webkit-scrollbar { width: 10px }
+        html::-webkit-scrollbar-track { background: rgba(3, 10, 22, .9) }
+        html::-webkit-scrollbar-thumb {
+            background: rgba(37, 182, 255, .45);
+            border: 2px solid rgba(3, 10, 22, .9);
+            border-radius: 999px
+        }
+        html::-webkit-scrollbar-thumb:hover { background: rgba(37, 182, 255, .72) }
+
         * {
             box-sizing: border-box;
             margin: 0
