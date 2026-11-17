@@ -4038,42 +4038,50 @@
             bar.addEventListener('animationend', () => { bar.style.animation = 'none'; }, { once: true });
             let lastY = window.scrollY;
             let quietUntil = 0;
+            let upDistance = 0;
+            const onMissionPage = () => {
+                const page = document.getElementById('mission');
+                return !!page && page.classList.contains('on');
+            };
             // A new page, a new slide or a scroll we started ourselves must not be
             // mistaken for the reader scrolling down.
             window.SolvixHeader = {
-                show: () => { bar.classList.remove('is-tucked'); },
+                show: () => { bar.classList.remove('is-tucked'); upDistance = 0; },
                 // Moving to another page or slide keeps the bar exactly as it was:
                 // only the scroll movement we start ourselves is ignored.
                 lock: (ms) => {
                     quietUntil = performance.now() + (ms || 900);
                     lastY = Math.max(0, window.scrollY);
-                    upGestures = 0;
+                    upDistance = 0;
                 }
             };
-            // One flick up is not enough: the bar comes back on the second,
-            // so a stray nudge while reading does not bring it down.
-            let upGestures = 0;
-            let lastUpAt = 0;
             window.addEventListener('scroll', () => {
                 const y = Math.max(0, window.scrollY);
                 const now = performance.now();
-                if (now < quietUntil) { lastY = y; upGestures = 0; return; }
+                // The equipment pages keep their bar: reading a story never hides it.
+                if (onMissionPage()) {
+                    bar.classList.remove('is-tucked');
+                    lastY = y;
+                    upDistance = 0;
+                    return;
+                }
+                if (now < quietUntil) { lastY = y; upDistance = 0; return; }
                 const step = y - lastY;
                 if (Math.abs(step) < 6) return;
                 if (y < 80 && step < 0) {
                     // Back at the very top, but only on the way up: a page that
                     // opens at the top keeps the bar where the last page left it.
                     bar.classList.remove('is-tucked');
-                    upGestures = 0;
+                    upDistance = 0;
                 } else if (step > 0) {
                     bar.classList.add('is-tucked');
-                    upGestures = 0;
+                    upDistance = 0;
                 } else {
-                    if (now - lastUpAt > 320) upGestures += 1;
-                    lastUpAt = now;
-                    if (upGestures >= 2) {
+                    // A short way back up is enough: two scrolls, not three.
+                    upDistance += Math.abs(step);
+                    if (upDistance >= 120) {
                         bar.classList.remove('is-tucked');
-                        upGestures = 0;
+                        upDistance = 0;
                     }
                 }
                 lastY = y;
@@ -4182,7 +4190,10 @@
             if (window.SolvixExplore) { if (id === 'worlds') window.SolvixExplore.show(); else window.SolvixExplore.hide(); }
             document.body.classList.toggle('rocks', id !== 'home');
             GM.show(id === 'game' ? 'menu' : 'none');
-            if (window.SolvixHeader) window.SolvixHeader.lock(900);
+            if (window.SolvixHeader) {
+                window.SolvixHeader.lock(900);
+                if (id === 'mission') window.SolvixHeader.show();
+            }
             jumpToTop();
             if (window.SolvixNav) window.SolvixNav.settle(h);
         }
