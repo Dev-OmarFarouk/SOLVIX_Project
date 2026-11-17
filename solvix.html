@@ -141,7 +141,7 @@
         html {
             scroll-padding-top: env(safe-area-inset-top, 0px);
             scroll-behavior: smooth;
-            overflow-x: hidden;
+            overflow-x: clip;
             scrollbar-gutter: stable;
             width: 100%;
             max-width: 100%;
@@ -177,7 +177,9 @@
             font-weight: var(--fw-regular);
             line-height: var(--lh-body);
             letter-spacing: 0;
-            overflow-x: hidden;
+            /* clip, not hidden: hidden would turn the body into a scroll container
+               and give it a second scrollbar beside the page one. */
+            overflow-x: clip;
             width: 100%;
             max-width: 100%;
             min-height: 100vh
@@ -389,7 +391,8 @@
             position: relative;
             width: 100%;
             max-width: 100%;
-            overflow-x: hidden;
+            /* clip keeps the horizontal spill out without making main scrollable. */
+            overflow-x: clip;
         }
 
         .page {
@@ -398,7 +401,7 @@
             display: none;
             width: 100%;
             max-width: 100%;
-            overflow-x: hidden;
+            overflow-x: clip;
         }
 
         .page.on {
@@ -1874,13 +1877,13 @@
         body.nav-flying,
         body.nav-out,
         body.nav-in {
-            overflow-x: hidden !important;
+            overflow-x: clip !important;
         }
 
         body.nav-out .page.on {
             animation: navPageOut .3s cubic-bezier(.4, 0, .78, .2) forwards;
             will-change: transform, opacity;
-            overflow-x: hidden;
+            overflow-x: clip;
         }
         @keyframes navPageOut {
             to {
@@ -1891,7 +1894,7 @@
         body.nav-in .page.on {
             animation: navPageIn .46s cubic-bezier(.16, .84, .26, 1) both;
             will-change: transform, opacity;
-            overflow-x: hidden;
+            overflow-x: clip;
         }
         @keyframes navPageIn {
             from {
