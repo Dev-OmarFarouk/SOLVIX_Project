@@ -2467,16 +2467,27 @@
                4 = sixteenths); every entry is [step, midi, lengthInSteps]. */
             const SCENES = {
                 space: {
-                    bpm: 60, sub: 2, len: 16, level: 0.9,
-                    pad: [[0, [45, 52, 60, 71], 4], [4, [41, 48, 57, 64], 4], [8, [48, 55, 64, 62], 4], [12, [43, 50, 59, 64], 4]],
+                    bpm: 60, sub: 2, len: 16, level: 0.9, padVol: 0.05,
+                    // Chords run a step longer than the bar so each one hands over to
+                    // the next, and a drone and an air bed run underneath: the cue
+                    // never drops into silence between phrases.
+                    pad: [[0, [45, 52, 60, 71], 5], [4, [41, 48, 57, 64], 5], [8, [48, 55, 64, 62], 5], [12, [43, 50, 59, 64], 5]],
+                    drone: [[0, 45, 17], [8, 41, 17]],
+                    air: [[0, 17]],
                     bell: [[0, 76, 3, 0.05], [3, 71, 2, 0.045], [6, 72, 3, 0.045], [10, 67, 4, 0.04], [14, 69, 2, 0.04]]
                 },
                 story: {
-                    bpm: 76, sub: 2, len: 32, level: 0.76,
-                    pad: [[0, [50, 57, 65, 64], 8], [8, [46, 53, 62, 69], 8], [16, [41, 48, 57, 64], 8], [24, [48, 55, 62, 64], 8]],
-                    bell: [[16, 74, 4, 0.05], [20, 77, 4, 0.045], [24, 76, 3, 0.045], [28, 69, 4, 0.04]],
+                    // Its own identity: a music-box melody over a running arpeggio and a
+                    // soft heartbeat, in D minor and at a walking pace. The pad only glues
+                    // it together, so it never sounds like the space cue.
+                    bpm: 88, sub: 2, len: 32, level: 0.74, padVol: 0.03,
+                    pad: [[0, [50, 57, 65], 9], [8, [46, 53, 62], 9], [16, [41, 48, 57], 9], [24, [48, 55, 64], 9]],
+                    box: [[0, 74, 2, 0.055], [2, 77, 2, 0.05], [4, 81, 3, 0.055], [7, 77, 2, 0.045],
+                        [8, 76, 2, 0.05], [10, 72, 2, 0.045], [12, 74, 6, 0.055],
+                        [16, 70, 2, 0.05], [18, 74, 2, 0.05], [20, 77, 3, 0.055], [23, 74, 2, 0.045],
+                        [24, 72, 2, 0.05], [26, 69, 2, 0.045], [28, 67, 6, 0.05]],
                     bass: [[0, 38, 8], [8, 34, 8], [16, 29, 8], [24, 36, 8]],
-                    pulse: [0, 16]
+                    pulse: [0, 8, 16, 24]
                 },
                 game: {
                     bpm: 140, sub: 4, len: 64, level: 0.56,
@@ -2487,11 +2498,12 @@
                         [48, 72, 2, 0.05], [50, 69, 2, 0.05], [52, 67, 4, 0.05], [56, 64, 2, 0.05], [58, 67, 2, 0.05], [60, 69, 4, 0.055]]
                 }
             };
-            // The story cue's arpeggio is drawn from its own chords.
+            // The story cue keeps a note moving on every eighth, so there is always
+            // something to follow under the narration.
             SCENES.story.arp = [];
             SCENES.story.pad.forEach(c => {
-                const n = c[1];
-                [n[1], n[2], n[3], n[1] + 12].forEach((m, k) => SCENES.story.arp.push([c[0] + k * 2, m, 2, 0.028]));
+                const n = c[1], shape = [n[0], n[1], n[2], n[1] + 12];
+                for (let k = 0; k < 8; k++) SCENES.story.arp.push([c[0] + k, shape[k % 4], 1, 0.02]);
             });
             // A plain backbeat for the game cue.
             SCENES.game.kick = []; SCENES.game.snare = []; SCENES.game.hat = [];
@@ -2547,6 +2559,46 @@
                 o.start(t); o2.start(t); o.stop(t + dur + 0.05); o2.stop(t + dur + 0.05);
             }
 
+            function voiceDrone(a, f, t, dur, out) {
+                const o = a.createOscillator(), o2 = a.createOscillator(), lp = a.createBiquadFilter(), g = a.createGain();
+                o.type = 'sine'; o2.type = 'triangle';
+                o.frequency.value = f; o2.frequency.value = f * 1.004;
+                lp.type = 'lowpass'; lp.frequency.value = 300;
+                g.gain.setValueAtTime(0.0001, t);
+                g.gain.linearRampToValueAtTime(0.05, t + Math.min(2, dur * 0.3));
+                g.gain.linearRampToValueAtTime(0.0001, t + dur);
+                o.connect(lp); o2.connect(lp); lp.connect(g); g.connect(out);
+                o.start(t); o2.start(t); o.stop(t + dur + 0.1); o2.stop(t + dur + 0.1);
+            }
+
+            function voiceAir(a, t, dur, out) {
+                const src = a.createBufferSource(), bp = a.createBiquadFilter(), g = a.createGain();
+                const lfo = a.createOscillator(), depth = a.createGain();
+                src.buffer = noiseBuffer(a, Math.min(6, Math.max(1, dur)));
+                src.loop = true;
+                bp.type = 'bandpass'; bp.frequency.value = 1100; bp.Q.value = 0.6;
+                g.gain.setValueAtTime(0.0001, t);
+                g.gain.linearRampToValueAtTime(0.03, t + dur * 0.4);
+                g.gain.linearRampToValueAtTime(0.0001, t + dur);
+                lfo.frequency.value = 0.09;
+                depth.gain.value = 0.012;
+                lfo.connect(depth); depth.connect(g.gain);
+                src.connect(bp); bp.connect(g); g.connect(out);
+                src.start(t); lfo.start(t);
+                src.stop(t + dur); lfo.stop(t + dur);
+            }
+
+            function voiceBox(a, f, t, dur, vol, out) {
+                const o = a.createOscillator(), o2 = a.createOscillator(), g = a.createGain(), g2 = a.createGain();
+                o.type = 'sine'; o.frequency.value = f;
+                o2.type = 'triangle'; o2.frequency.value = f * 3.01;
+                g2.gain.value = 0.2; o2.connect(g2); g2.connect(g);
+                g.gain.setValueAtTime(0.0001, t);
+                g.gain.exponentialRampToValueAtTime(vol, t + 0.008);
+                g.gain.exponentialRampToValueAtTime(0.0001, t + dur * 0.92);
+                o.connect(g); g.connect(out);
+                o.start(t); o2.start(t); o.stop(t + dur + 0.03); o2.stop(t + dur + 0.03);
+            }
             function voicePluck(a, f, t, dur, vol, out, chip) {
                 const o = a.createOscillator(), lp = a.createBiquadFilter(), g = a.createGain();
                 o.type = chip ? 'square' : 'triangle';
@@ -2652,7 +2704,10 @@
                 const out = bus;
                 while (seq.t < ac.currentTime + 0.25) {
                     const at = seq.t, st = seq.i % s.len;
-                    if (s.pad) s.pad.forEach(c => { if (c[0] === st) c[1].forEach(m => voicePad(ac, hz(m), at, c[2] * dur * 0.95, 0.05, out)) });
+                    if (s.pad) s.pad.forEach(c => { if (c[0] === st) c[1].forEach(m => voicePad(ac, hz(m), at, c[2] * dur * 0.95, s.padVol || 0.05, out)) });
+                    if (s.drone) s.drone.forEach(m => { if (m[0] === st) voiceDrone(ac, hz(m[1]), at, m[2] * dur * 0.95, out) });
+                    if (s.air) s.air.forEach(m => { if (m[0] === st) voiceAir(ac, at, m[1] * dur * 0.95, out) });
+                    if (s.box) s.box.forEach(m => { if (m[0] === st) voiceBox(ac, hz(m[1]), at, m[2] * dur, m[3], out) });
                     if (s.bell) s.bell.forEach(m => { if (m[0] === st) voiceBell(ac, hz(m[1]), at, m[2] * dur, m[3], out) });
                     if (s.arp) s.arp.forEach(m => { if (m[0] === st) voicePluck(ac, hz(m[1]), at, m[2] * dur, m[3], out, false) });
                     if (s.lead) s.lead.forEach(m => { if (m[0] === st) voicePluck(ac, hz(m[1]), at, m[2] * dur, m[3], out, true) });
