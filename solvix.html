@@ -367,7 +367,6 @@
         /* Ship starts at the left edge UNDER the "Start Your Journey" button (nose right), rises across Earth, passes slowly IN FRONT of the astronaut and leaves on the right */
         /* Cinematic Homepage Spaceship & Dynamic Plasma Engine VFX */
         .ship {
-            --y0: calc(36vh - var(--w) * 0.22);
             position: absolute;
             z-index: 3;
             left: 36%;
@@ -377,7 +376,7 @@
             pointer-events: none;
             transform-origin: 50% 50%;
             will-change: transform, opacity;
-            animation: cinematicFlight 20s cubic-bezier(0.25, 0.1, 0.25, 1) infinite;
+            animation: cinematicFlight 20s linear infinite;
         }
 
         .ship-body {
@@ -525,98 +524,69 @@
         }
 
         @keyframes engineThrottle {
-            0% {
-                opacity: 0;
-                filter: brightness(0.8);
-                transform: scale(0.82);
-            }
-            4% {
-                opacity: 0.75;
-                filter: brightness(1);
+            /* The glow never dies while the ship is on screen; 0% and 100% match so
+               the loop seam cannot flash. */
+            0%, 100% {
+                opacity: 0.9;
+                filter: brightness(1) drop-shadow(0 0 9px rgba(0, 200, 255, 0.5));
                 transform: scale(0.9);
             }
-            20% {
+            30% {
                 opacity: 1;
                 filter: brightness(1.35) drop-shadow(0 0 16px rgba(0, 220, 255, 0.8));
-                transform: scale(1.22);
-            }
-            38% {
-                opacity: 0.95;
-                filter: brightness(1.2) drop-shadow(0 0 12px rgba(0, 210, 255, 0.65));
-                transform: scale(1.1);
+                transform: scale(1.2);
             }
             55% {
+                opacity: 0.96;
+                filter: brightness(1.18) drop-shadow(0 0 12px rgba(0, 210, 255, 0.62));
+                transform: scale(1.08);
+            }
+            80% {
                 opacity: 0.92;
-                filter: brightness(1.12) drop-shadow(0 0 10px rgba(0, 190, 255, 0.5));
-                transform: scale(1.04);
-            }
-            70% {
-                opacity: 0.88;
-                filter: brightness(1.05) drop-shadow(0 0 8px rgba(0, 180, 255, 0.4));
-                transform: scale(0.98);
-            }
-            84% {
-                opacity: 0.72;
-                filter: brightness(0.92) drop-shadow(0 0 5px rgba(0, 160, 255, 0.3));
-                transform: scale(0.88);
-            }
-            92% {
-                opacity: 0.5;
-                filter: brightness(0.85);
-                transform: scale(0.84);
-            }
-            96%, 100% {
-                opacity: 0;
-                transform: scale(0.8);
+                filter: brightness(1.06) drop-shadow(0 0 8px rgba(0, 180, 255, 0.42));
+                transform: scale(0.96);
             }
         }
 
         @keyframes cinematicFlight {
+            /* One continuous cruise at a constant speed. The ship enters low on the
+               left, banks up over the astronaut and slips away on the right. The
+               arc peaks well under the header band (about 120px of clearance at
+               1280x800), so no part of the hull is ever hidden behind it, and the
+               ship is always travelling — it no longer hangs at the top of a curve
+               that used to sit under the header. */
             0% {
-                transform: translate(calc(-100vw + var(--w) * 0.1 - 40px), var(--y0)) scale(0.85) rotate(-2deg);
+                transform: translate(calc(-136vw + var(--w) * 0.64), calc(var(--w) * 0.06)) scale(0.86) rotate(-3.4deg);
                 opacity: 0;
-                animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
             }
             4% {
+                transform: translate(calc(-130vw + var(--w) * 0.64), calc(var(--w) * 0.025)) scale(0.88) rotate(-3.3deg);
                 opacity: 1;
-                transform: translate(calc(-99vw + var(--w) * 0.45), var(--y0)) scale(0.86) rotate(-2deg);
-                animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
             }
-            16% {
-                transform: translate(calc(-87vw + var(--w) * 0.64), calc(var(--w) * -0.22)) scale(0.89) rotate(-3.5deg);
-                animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+            12% {
+                transform: translate(calc(-119vw + var(--w) * 0.64), calc(var(--w) * -0.043)) scale(0.9) rotate(-3deg);
             }
-            32% {
-                transform: translate(calc(-69vw + var(--w) * 0.64), calc(var(--w) * -0.36)) scale(0.93) rotate(-2.5deg);
-                animation-timing-function: cubic-bezier(0.3, 0.05, 0.3, 1);
+            26% {
+                transform: translate(calc(-99vw + var(--w) * 0.64), calc(var(--w) * -0.144)) scale(0.95) rotate(-2.1deg);
             }
-            48% {
-                transform: translate(calc(-51vw + var(--w) * 0.64), calc(var(--w) * -0.44)) scale(0.97) rotate(-1deg);
-                animation-timing-function: cubic-bezier(0.3, 0.05, 0.3, 1);
+            40% {
+                transform: translate(calc(-79vw + var(--w) * 0.64), calc(var(--w) * -0.206)) scale(0.97) rotate(-1deg);
             }
-            62% {
-                transform: translate(calc(-37vw + var(--w) * 0.64), calc(var(--w) * -0.45)) scale(1.0) rotate(0.8deg);
-                animation-timing-function: cubic-bezier(0.35, 0.05, 0.3, 1);
+            54% {
+                transform: translate(calc(-59vw + var(--w) * 0.64), calc(var(--w) * -0.218)) scale(0.98) rotate(0.4deg);
             }
-            74% {
-                transform: translate(calc(-25vw + var(--w) * 0.64), calc(var(--w) * -0.41)) scale(0.97) rotate(2deg);
-                animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+            68% {
+                transform: translate(calc(-39vw + var(--w) * 0.64), calc(var(--w) * -0.176)) scale(0.96) rotate(1.9deg);
             }
-            84% {
-                transform: translate(calc(-14vw + var(--w) * 0.64), calc(var(--w) * -0.35)) scale(0.93) rotate(2.2deg);
-                animation-timing-function: ease-out;
+            82% {
+                transform: translate(calc(-20vw + var(--w) * 0.64), calc(var(--w) * -0.09)) scale(0.92) rotate(2.9deg);
             }
-            91% {
-                transform: translate(calc(-5vw + var(--w) * 0.64), calc(var(--w) * -0.30)) scale(0.88) rotate(1.5deg);
+            94% {
+                transform: translate(calc(-3vw + var(--w) * 0.64), calc(var(--w) * -0.008)) scale(0.88) rotate(3.3deg);
                 opacity: 1;
-                animation-timing-function: ease-out;
             }
-            95% {
-                transform: translate(calc(6vw + var(--w) * 0.64), calc(var(--w) * -0.27)) scale(0.85) rotate(1deg);
-                opacity: 0;
-            }
-            96%, 100% {
-                transform: translate(calc(-100vw + var(--w) * 0.1 - 40px), var(--y0)) scale(0.85) rotate(-2deg);
+            100% {
+                transform: translate(calc(6vw + var(--w) * 0.64), calc(var(--w) * 0.06)) scale(0.86) rotate(3.4deg);
                 opacity: 0;
             }
         }
@@ -630,7 +600,7 @@
         @media (prefers-reduced-motion: reduce) {
             .ship {
                 animation: none;
-                transform: translate(calc(-40vw + var(--w) * 0.64), calc(var(--w) * -0.42)) scale(0.95) rotate(-1deg);
+                transform: translate(calc(-50vw + var(--w) * 0.64), calc(var(--w) * -0.2)) scale(0.95) rotate(-1deg);
                 opacity: 0.95;
             }
             .ship-engines {
