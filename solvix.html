@@ -661,13 +661,17 @@
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            filter: drop-shadow(0 0 22px rgba(37, 182, 255, .55));
+            /* The wordmark is filled from a gradient, so a plain text-shadow
+               would show through the transparent letters. The dark halo is a
+               drop-shadow instead: it sits behind the glyphs, so the pale end
+               of the word (the IX) keeps its edge over a bright background. */
+            filter: drop-shadow(0 0 2.5px rgba(3, 10, 24, .95)) drop-shadow(0 2px 8px rgba(3, 10, 24, .85)) drop-shadow(0 0 22px rgba(37, 182, 255, .55));
             animation: in 1.2s .5s both, glow 4s 2s ease-in-out infinite
         }
 
         @keyframes glow {
             50% {
-                filter: drop-shadow(0 0 40px rgba(37, 182, 255, .95))
+                filter: drop-shadow(0 0 2.5px rgba(3, 10, 24, .95)) drop-shadow(0 2px 8px rgba(3, 10, 24, .85)) drop-shadow(0 0 40px rgba(37, 182, 255, .95))
             }
         }
 
