@@ -2469,10 +2469,10 @@
             const SCENES = {
                 space: {
                     bpm: 60, sub: 2, len: 16, level: 0.9, padVol: 0.05,
-                    // Chords run a step longer than the bar so each one hands over to
-                    // the next, and a drone and an air bed run underneath: the cue
-                    // never drops into silence between phrases.
-                    pad: [[0, [45, 52, 60, 71], 5], [4, [41, 48, 57, 64], 5], [8, [48, 55, 64, 62], 5], [12, [43, 50, 59, 64], 5]],
+                    // The chords hold each other up, but the last one is let go early so
+                    // the phrase takes a breath before it starts again. A drone and an air
+                    // bed keep running underneath, so the pause is quiet, never empty.
+                    pad: [[0, [45, 52, 60, 71], 4], [4, [41, 48, 57, 64], 4], [9, [48, 55, 64, 62], 4], [13, [43, 50, 59, 64], 2.2]],
                     drone: [[0, 45, 17], [8, 41, 17]],
                     air: [[0, 17]],
                     bell: [[0, 76, 3, 0.05], [3, 71, 2, 0.045], [6, 72, 3, 0.045], [10, 67, 4, 0.04], [14, 69, 2, 0.04]]
