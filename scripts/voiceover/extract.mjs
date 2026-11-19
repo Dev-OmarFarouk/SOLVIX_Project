@@ -17,7 +17,8 @@ const EMOJI = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F]/gu;
    together as "Moon science" in Eagle's third slide. The visible caption keeps
    its original punctuation; only the narration text gets the extra pause. */
 const SPOKEN_FIXES = {
-  'eagle/03': text => text.replace('Look what I found, Moons! The Moon', 'Look what I found, Moons! ... The Moon')
+  'eagle/03': text => text.replace('Look what I found, Moons! The Moon', 'Look what I found, Moons! ... The Moon'),
+  'near/01': text => text.replace('Hi, Moons! Guess', 'Hi, Moons! ... Guess')
 };
 
 /** The same cleanup the page applies before speaking. */
