@@ -1876,6 +1876,8 @@
         /* Loading spinner used next to the voice-over box and the globe. */
         .vo-spinner, .tex-spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.25); border-top-color: var(--cy2, #37b6ee); border-radius: 50%; animation: voSpin .7s linear infinite; vertical-align: middle; margin-inline-start: 6px }
         .vo-spinner[hidden], .tex-spinner[hidden] { display: none }
+        .voice-wrap { position: relative; display: inline-flex; align-items: center }
+        #mission-voice-loading { position: absolute; inset-inline-start: 100%; top: 50%; transform: translateY(-50%); margin-inline-start: 6px }
         @keyframes voSpin { to { transform: rotate(360deg) } }
         .globe-spinner { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 5; width: 34px; height: 34px; border: 3px solid rgba(255,255,255,.2); border-top-color: var(--cy2, #37b6ee); border-radius: 50%; animation: voSpin .7s linear infinite }
         .globe-spinner[hidden] { display: none }
@@ -2486,8 +2488,7 @@
             <div class="mission-controls">
                 <button id="mission-prev" type="button">Back</button>
                 <span id="mission-progress" aria-live="polite"></span>
-                <button id="mission-voice" type="button" title="Read aloud: Off / English / Arabic">🗣 Off</button>
-                <span id="mission-voice-loading" class="vo-spinner" hidden aria-hidden="true"></span>
+                <span class="voice-wrap"><button id="mission-voice" type="button" title="Read aloud: Off / English / Arabic">🗣 Off</button><span id="mission-voice-loading" class="vo-spinner" hidden aria-hidden="true"></span></span>
                 <button id="mission-next" type="button">Next</button>
             </div>
             <p id="mission-notice" hidden aria-live="polite"></p>
