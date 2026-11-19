@@ -3364,14 +3364,20 @@
             }
         }
 
-        fetch(CLIP_ROOT + 'manifest.json')
+        /* The manifest is the only thing that names the clips, so it is fetched
+           past every cache: a freshly generated take has to show up as soon as
+           the page reloads. Each clip URL then carries its own content hash,
+           which is what makes the year-long immutable caching of the audio
+           safe - a new take is a new URL, an old one never has to expire. */
+        fetch(CLIP_ROOT + 'manifest.json?ts=' + Date.now(), { cache: 'no-store' })
             .then(r => (r.ok ? r.json() : null))
             .then(m => {
                 if (!m || !m.clips) return;
                 for (const id in m.clips) {
                     const c = m.clips[id];
                     if (c && c.status === 'ok' && c.file) {
-                        clips[id] = { src: CLIP_ROOT + c.file, dur: +c.duration || 0 };
+                        const version = c.hash ? '?v=' + c.hash : '';
+                        clips[id] = { src: CLIP_ROOT + c.file + version, dur: +c.duration || 0 };
                     }
                 }
                 // The default voiceover for the opening page only; other
