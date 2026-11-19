@@ -235,6 +235,14 @@
             opacity: 0;
             pointer-events: none
         }
+        /* The bar leaves upward with the Explore copy when a landing site is
+           chosen, clearing the top of the viewport for the growing planet. */
+        body.is-departing header {
+            transform: translateY(calc(-100% - 42px));
+            opacity: 0;
+            pointer-events: none
+        }
+        body.is-departing { overflow: hidden }
         @media (prefers-reduced-motion: reduce) {
             header { transition: none }
         }
@@ -248,7 +256,7 @@
 
         .logo {
             font-family: var(--font-display);
-            font-size: clamp(17px, 1.8vw, 23px);
+            font-size: clamp(21px, 2.2vw, 29px);
             font-weight: var(--fw-regular);
             line-height: 1;
             letter-spacing: .1em;
@@ -1449,6 +1457,19 @@
         #worlds .wrap { max-width: 1080px; margin: 0 auto; padding: 132px 22px 90px; text-align: center }
         #worlds h2 { font-family: var(--font-display); font-size: var(--fs-display); font-weight: var(--fw-regular); line-height: var(--lh-tight); letter-spacing: var(--ls-display); text-shadow: 0 0 22px rgba(37, 182, 255, .6) }
         #worlds .sub { color: var(--cy2); margin: 8px auto 0; max-width: 62ch; font-family: var(--font-body); font-size: var(--fs-lead); line-height: var(--lh-body) }
+        /* On a marker click the heading, paragraph, world picker and count all
+           lift away, so the globe has the screen to itself. */
+        #worlds h2, #worlds .sub, #worlds .world-tabs, #worlds .worlds-count {
+            transition: opacity .38s ease, transform .58s cubic-bezier(.4, 0, .2, 1)
+        }
+        body.is-departing #worlds h2,
+        body.is-departing #worlds .sub,
+        body.is-departing #worlds .world-tabs,
+        body.is-departing #worlds .worlds-count {
+            opacity: 0;
+            transform: translateY(-42px);
+            pointer-events: none
+        }
         .world-tabs { display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 8px; max-width: 100%; margin: 24px 0 0; padding: 6px; border: 1px solid rgba(37, 182, 255, .35); border-radius: 999px; background: var(--panel); backdrop-filter: blur(8px) }
         .world-tabs button { display: inline-flex; align-items: center; gap: 9px; padding: 10px 22px; border: 0; border-radius: 999px; background: transparent; color: var(--tx); font-family: var(--font-ui); font-size: 15px; font-weight: var(--fw-medium); letter-spacing: var(--ls-ui); cursor: pointer; transition: .25s }
         /* Pixel-art world glyphs: drawn as squares, never smoothed. */
@@ -1497,10 +1518,61 @@
             .globe-stage.is-shifting::after { animation: none }
         }
         .worlds-count { margin: 22px 0 0; font-family: var(--font-mono); font-size: var(--fs-micro); font-weight: 500; line-height: 1.4; letter-spacing: .14em; text-transform: uppercase; color: var(--cy) }
-        .globe-stage { position: relative; width: min(82vw, 540px); aspect-ratio: 1; margin: 6px auto 0 }
-        #globe { display: block; width: 100%; height: 100%; border-radius: 50%; cursor: grab; touch-action: none }
+        .globe-stage { position: relative; isolation: isolate; width: min(82vw, 540px); aspect-ratio: 1; margin: 6px auto 0 }
+        /* The stage is the camera frame, not a fixed porthole. It grows to the
+           whole viewport for a departure, and the circular mask is removed. */
+        .globe-stage.is-expanding {
+            z-index: 60;
+            margin: 0;
+            max-width: none;
+            cursor: default
+        }
+        .globe-stage.is-expanding #globe { border-radius: 0 }
+        .globe-stage.is-expanding .g-approach { inset: 0; border-radius: 0; opacity: 0 !important }
+        /* No halo at rest. The soft ring only appears while a site opens, so the
+           Explore page starts with a clean globe and no blue outline. */
+        .globe-stage::before {
+            content: '';
+            position: absolute;
+            inset: -18%;
+            z-index: -1;
+            border-radius: 50%;
+            pointer-events: none;
+            background: radial-gradient(circle at 50% 50%,
+                rgba(37, 182, 255, 0) 0 57%,
+                rgba(37, 182, 255, .34) 65%,
+                rgba(37, 182, 255, .12) 73%,
+                rgba(37, 182, 255, 0) 82%);
+            filter: blur(14px);
+            opacity: 0
+        }
+        .globe-stage[data-world="Mars"]::before { background: radial-gradient(circle at 50% 50%, rgba(255, 138, 31, 0) 0 57%, rgba(255, 138, 31, .34) 65%, rgba(255, 138, 31, .12) 73%, rgba(255, 138, 31, 0) 82%) }
+        .globe-stage[data-world="Asteroid belt"]::before { background: radial-gradient(circle at 50% 50%, rgba(255, 196, 120, 0) 0 57%, rgba(255, 196, 120, .3) 65%, rgba(255, 196, 120, .1) 73%, rgba(255, 196, 120, 0) 82%) }
+        .globe-stage.is-expanding::before { opacity: .95; inset: -24% }
+        #globe { display: block; width: 100%; height: 100%; border-radius: 50%; cursor: grab; touch-action: none; transition: transform .5s cubic-bezier(.5, 0, .18, 1), filter .5s ease, border-radius .45s ease }
         #globe:active { cursor: grabbing }
         #globe-points { position: absolute; inset: 0; pointer-events: none }
+        /* A soft inner vignette keeps the limb from meeting the circular frame
+           as a hard cut while the camera is moving in. */
+        .g-approach { position: absolute; inset: -1px; z-index: 1; border-radius: 50%; pointer-events: none; opacity: 0; background: radial-gradient(circle at 50% 50%, rgba(37, 182, 255, 0) 34%, rgba(37, 182, 255, .14) 62%, rgba(2, 7, 15, .94) 100%); transition: opacity .35s ease }
+        .globe-stage[data-world="Mars"] .g-approach { background: radial-gradient(circle at 50% 50%, rgba(255, 138, 31, 0) 34%, rgba(255, 138, 31, .15) 62%, rgba(20, 5, 3, .94) 100%) }
+        .globe-stage[data-world="Asteroid belt"] .g-approach { background: radial-gradient(circle at 50% 50%, rgba(255, 196, 120, 0) 34%, rgba(255, 196, 120, .13) 62%, rgba(13, 9, 5, .94) 100%) }
+        .globe-stage.is-traveling .g-approach { inset: 0; border-radius: 0; opacity: calc(.35 + var(--travel, 0) * .65) }
+        .globe-hint { position: absolute; left: 50%; bottom: -30px; z-index: 4; width: max-content; max-width: 92%; margin: 0; transform: translateX(-50%); pointer-events: none; opacity: 0; transition: opacity .3s ease, transform .3s ease; font-family: var(--font-mono); font-size: 10px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; color: rgba(164, 241, 255, .8); text-align: center }
+        .globe-stage.has-selection .globe-hint { opacity: 1; transform: translateX(-50%) translateY(3px) }
+        .globe-stage.is-traveling .globe-hint { opacity: 1; transform: translateX(-50%) translateY(3px); color: #ffd9b3 }
+        .globe-stage.is-arriving #globe { filter: brightness(1.2) saturate(1.1) }
+        .globe-stage.is-traveling #globe { cursor: default }
+        .globe-stage.is-traveling .g-point:not(.is-selected) { opacity: 0 !important; transition: opacity .3s ease }
+        .globe-stage.is-traveling .g-point .g-tag { opacity: 0; transform: translateY(6px); transition: opacity .25s ease, transform .25s ease }
+        .globe-stage.is-traveling .g-asteroid-name { opacity: 0 !important; transition: opacity .3s ease }
+        .globe-stage.is-traveling .g-point.is-selected .g-dot { animation: gTarget 1.1s ease-in-out infinite; background: #ffe2c2; box-shadow: 0 0 0 4px rgba(255, 138, 31, .34), 0 0 28px rgba(255, 190, 120, .95) }
+        @keyframes gTarget { 50% { transform: scale(1.3); box-shadow: 0 0 0 7px rgba(255, 138, 31, .12), 0 0 32px rgba(255, 190, 120, 1) } }
+        .g-point.is-selected .g-dot { background: #ffe2c2; box-shadow: 0 0 0 4px rgba(255, 138, 31, .3), 0 0 24px rgba(255, 180, 110, .9) }
+        .g-point.is-selected .g-dot::after { border-color: rgba(255, 180, 110, .8); animation-duration: 1.4s }
+        .g-point.is-selected .g-tag { border-color: rgba(255, 138, 31, .62); background: rgba(48, 24, 6, .88); box-shadow: 0 0 24px rgba(255, 138, 31, .3) }
+        .g-point.is-selected .g-tag i { color: #ffd9b3 }
+        .g-point.is-selected .g-tag b { color: #fff0df }
         .g-point { position: absolute; left: 0; top: 0; z-index: 2; display: flex; align-items: center; gap: 9px; padding: 0; margin: 0; border: 0; background: transparent; color: #fff; cursor: pointer; pointer-events: none; text-align: left; transition: opacity .25s; transform-origin: 0 0 }
         /* Only the dot and the visible name take the pointer, not the row behind them. */
         .g-point .g-dot, .g-point .g-tag { pointer-events: auto }
@@ -1529,6 +1601,177 @@
         #worlds.is-belt #worlds-name { visibility: hidden }
         .globe-stage[data-world="Asteroid belt"] #globe { border-radius: 0; cursor: default }
         .globe-stage[data-world="Asteroid belt"] #globe:active { cursor: default }
+
+        /* ---------------- Harley's Explore tip ---------------- */
+        /* A clipped mission slip, numbered like a field note. It overlaps the
+           globe only slightly: the astronaut and the note are both 10% smaller
+           than the first pass so they sit inside the 3D scene, not on top of it. */
+        .explore-tip {
+            position: fixed;
+            right: clamp(14px, 2.6vw, 30px);
+            bottom: clamp(14px, 2.6vh, 26px);
+            z-index: 7;
+            display: flex;
+            align-items: flex-end;
+            max-width: min(92vw, 371px);
+            pointer-events: none;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(22px) scale(.94);
+            transform-origin: 100% 100%;
+            transition: opacity .3s ease, transform .48s cubic-bezier(.2, .8, .2, 1), visibility 0s linear .48s
+        }
+        #worlds.on + .explore-tip {
+            opacity: 1;
+            visibility: visible;
+            transform: none;
+            transition: opacity .46s .12s ease, transform .58s .12s cubic-bezier(.2, .8, .2, 1), visibility 0s linear .12s
+        }
+        /* Leaving Explore deserves its own exit beat: the page fades under it,
+           so the note lifts away instead of blinking out with the display. */
+        body.nav-out #worlds.on + .explore-tip {
+            animation: tipOut .24s cubic-bezier(.4, 0, .2, 1) forwards
+        }
+        @keyframes tipOut {
+            from { opacity: 1; transform: none }
+            to { opacity: 0; transform: translateY(-12px) scale(.97) }
+        }
+        .explore-tip-bubble-wrap {
+            position: relative;
+            margin: 0 -9px 30px 0
+        }
+        .explore-tip-bubble {
+            position: relative;
+            width: clamp(186px, 20.5vw, 250px);
+            padding: 10px 13px 11px 14px;
+            border-left: 2px solid rgba(37, 182, 255, .72);
+            border-radius: 2px;
+            background:
+                linear-gradient(135deg, rgba(37, 182, 255, .14), rgba(37, 182, 255, 0) 42%),
+                linear-gradient(160deg, rgba(7, 27, 52, .97), rgba(2, 10, 22, .98));
+            filter: drop-shadow(0 15px 28px rgba(0, 0, 0, .5));
+            clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%);
+            transform: rotate(-1.1deg);
+            transform-origin: 100% 100%
+        }
+        /* The cut corner gets a lit edge; it is the only decoration on the slip. */
+        .explore-tip-bubble::before {
+            content: '';
+            position: absolute; top: 0; right: 0; width: 17px; height: 17px;
+            background: linear-gradient(225deg, rgba(37, 182, 255, .62), rgba(37, 182, 255, 0) 58%);
+            pointer-events: none
+        }
+        .explore-tip-bubble::after {
+            content: '';
+            position: absolute; left: 15px; right: 14px; bottom: 7px; height: 1px;
+            background: linear-gradient(90deg, rgba(37, 182, 255, .24), transparent 72%);
+            pointer-events: none
+        }
+        .explore-tip-tail {
+            position: absolute;
+            right: -10px;
+            bottom: 21px;
+            width: 0;
+            height: 0;
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+            border-left: 11px solid #06172b;
+            filter: drop-shadow(2px 0 0 rgba(37, 182, 255, .3));
+            transform: rotate(-1.1deg);
+            pointer-events: none
+        }
+        .explore-tip-kicker {
+            position: relative; z-index: 1;
+            display: flex; align-items: center; gap: 7px;
+            font-family: var(--font-tech);
+            line-height: 1;
+            text-transform: uppercase
+        }
+        .explore-tip-name {
+            color: #eaf7ff;
+            font-family: var(--font-tech);
+            font-size: 10.5px; font-weight: 600; letter-spacing: .15em
+        }
+        .explore-tip-meta {
+            margin-left: auto;
+            color: rgba(127, 216, 255, .6);
+            font-family: var(--font-ui);
+            font-size: 8px; font-weight: 600; letter-spacing: .16em
+        }
+        .explore-tip-bubble p {
+            position: relative; z-index: 1;
+            margin: 9px 0 0;
+            color: rgba(232, 247, 255, .86);
+            font-family: var(--font-body);
+            font-size: clamp(11px, .98vw, 12px);
+            line-height: 1.5
+        }
+        .explore-tip-bubble p > span { display: block }
+        .explore-tip-go {
+            display: inline-flex; align-items: center; gap: 5px;
+            margin: 3px 0 0; padding: 0 0 2px;
+            border: 0; background-color: transparent;
+            color: #fff;
+            font-family: var(--font-ui);
+            font-size: clamp(11.5px, 1.03vw, 12.5px);
+            font-weight: var(--fw-semibold);
+            letter-spacing: .005em;
+            text-align: left;
+            cursor: pointer;
+            pointer-events: auto;
+            background-image: linear-gradient(90deg, rgba(37, 182, 255, .9), rgba(164, 241, 255, .15));
+            background-repeat: no-repeat;
+            background-size: 100% 1px;
+            background-position: 0 100%;
+            text-shadow: 0 0 14px rgba(164, 241, 255, .3)
+        }
+        .explore-tip-go:hover { color: var(--cy2) }
+        .explore-tip-go:focus-visible { outline: 1px solid var(--cy); outline-offset: 3px }
+        .explore-tip-go i {
+            color: var(--cy);
+            font-family: var(--font-tech);
+            font-size: 1.08em; font-style: normal; line-height: 1;
+            transform: translateY(-1px)
+        }
+        .explore-tip-figure {
+            position: relative; z-index: 2;
+            display: flex; align-items: flex-end;
+            margin-left: -4px
+        }
+        /* A single orbit stroke behind Harley ties the note to the space map. */
+        .explore-tip-figure::before {
+            content: '';
+            position: absolute; left: 50%; top: 42%;
+            width: 156%; aspect-ratio: 1;
+            transform: translate(-50%, -50%) rotate(-18deg);
+            border: 1px solid transparent;
+            border-top-color: rgba(37, 182, 255, .45);
+            border-left-color: rgba(37, 182, 255, .16);
+            border-radius: 50%;
+            pointer-events: none
+        }
+        .explore-tip-astro {
+            position: relative; z-index: 2;
+            display: block;
+            width: clamp(92px, 10.3vw, 130px);
+            height: auto;
+            filter: drop-shadow(0 16px 24px rgba(0, 0, 0, .55)) drop-shadow(0 0 18px rgba(37, 182, 255, .14));
+            animation: tipFloat 6s 1.1s ease-in-out infinite
+        }
+        @keyframes tipFloat { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-4px) } }
+        body.is-departing .explore-tip { opacity: 0 !important; visibility: hidden !important }
+        @media (max-width: 900px) {
+            .explore-tip { right: 8px; bottom: 8px; max-width: 82vw }
+            .explore-tip-bubble-wrap { margin: 0 -7px 23px 0 }
+            .explore-tip-bubble { width: 179px; padding: 9px 11px 10px 12px }
+            .explore-tip-bubble p { font-size: 11px }
+            .explore-tip-astro { width: 79px }
+            .explore-tip-meta { display: none }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .explore-tip, #worlds.on + .explore-tip { transition: none; animation: none }
+            body.nav-out #worlds.on + .explore-tip, .explore-tip-astro { animation: none }
+        }
 
         /* ---------------- merge: the machine page ---------------- */
         .mis { max-width: none; padding: 0 0 60px }
@@ -1745,6 +1988,24 @@
         #transfer.is-inter.is-cruise #tp-arc { filter: drop-shadow(0 0 9px rgba(164, 241, 255, .45)) }
         #transfer.is-inter .tp-dot.from b { border-color: rgba(37, 182, 255, .55); background: rgba(3, 12, 26, .9) }
 
+        /* The final frame of the planetary approach: a full-screen wash that
+           hides the exact moment the page swaps, then lifts off the destination. */
+        #globe-depart { position: fixed; inset: 0; z-index: 139; pointer-events: none; opacity: 0; transition: opacity .34s ease; background: radial-gradient(circle at 50% 43%, rgba(3, 8, 18, 0) 0%, rgba(3, 8, 18, .22) 38%, #02070f 82%) }
+        #globe-depart.on { opacity: 1 }
+        #globe-depart[data-world="Mars"] { background: radial-gradient(circle at 50% 43%, rgba(25, 8, 4, 0) 0%, rgba(25, 8, 4, .26) 38%, #140503 82%) }
+        #globe-depart[data-world="Asteroid belt"] { background: radial-gradient(circle at 50% 43%, rgba(13, 9, 5, 0) 0%, rgba(13, 9, 5, .3) 38%, #080604 82%) }
+        #globe-depart::after { content: ''; position: absolute; inset: 0; opacity: 0; background: radial-gradient(circle at 50% 47%, rgba(164, 241, 255, .34), rgba(164, 241, 255, 0) 28%) }
+        #globe-depart[data-world="Mars"]::after { background: radial-gradient(circle at 50% 47%, rgba(255, 190, 130, .36), rgba(255, 190, 130, 0) 30%) }
+        #globe-depart[data-world="Asteroid belt"]::after { background: radial-gradient(circle at 50% 47%, rgba(255, 216, 170, .3), rgba(255, 216, 170, 0) 30%) }
+        #globe-depart.on::after { animation: globeArrival .58s ease-out both }
+        @keyframes globeArrival { 0% { opacity: 0; transform: scale(.78) } 38% { opacity: 1 } 100% { opacity: 0; transform: scale(1.28) } }
+
+        /* A soft white breath at the end of the approach. It hides the exact
+           page swap, holds long enough to feel intentional, then dissolves. */
+        #globe-flash { position: fixed; inset: 0; z-index: 141; pointer-events: none; opacity: 0; background: radial-gradient(circle at 50% 46%, #050b16 0%, #020712 56%, #000000 100%); transition: opacity .66s cubic-bezier(.4, 0, .2, 1) }
+        #globe-flash.on { opacity: .9; transition: opacity .46s cubic-bezier(.22, .7, .28, 1) }
+        @media (prefers-reduced-motion: reduce) { #globe-flash { transition: none } #globe-flash.on { opacity: 0 } }
+
         .transfer-hud { position: relative; z-index: 5; width: min(560px, 90vw); margin: 0 auto clamp(18px, 5vh, 46px); padding: 15px 22px 13px; border: 1px solid rgba(37, 182, 255, .26); border-radius: 16px; background: rgba(4, 14, 28, .72); backdrop-filter: blur(14px); box-shadow: 0 26px 60px rgba(0, 0, 0, .55); animation: trHud .5s .08s cubic-bezier(.2, .8, .2, 1) both }
         @keyframes trHud { from { opacity: 0; transform: translateY(14px) } }
         .transfer-hud .k { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-family: var(--font-mono); font-size: 9.5px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; color: rgba(164, 241, 255, .72) }
@@ -1768,7 +2029,8 @@
             .transfer-hud .route { font-size: 14px }
         }
         @media (prefers-reduced-motion: reduce) {
-            #transfer.on, #transfer.out, #tp-planet, .transfer-hud, .tp-halo, #transfer::before, .tp-dot.is-live::after { animation: none }
+            #transfer.on, #transfer.out, #tp-planet, .transfer-hud, .tp-halo, #transfer::before, .tp-dot.is-live::after, #globe-depart.on::after, .globe-stage.is-traveling .g-point.is-selected .g-dot { animation: none }
+            #globe, .g-approach, .globe-hint, .globe-stage.is-traveling .g-point:not(.is-selected), .globe-stage.is-traveling .g-point.is-selected .g-tag { transition: none }
         }
 
         @media(max-width:900px) {
@@ -1999,10 +2261,26 @@
             <p class="worlds-count" id="worlds-name">The Moon</p>
             <div class="globe-stage" id="globe-stage">
                 <canvas id="globe" aria-label="A turning globe with the machines on it"></canvas>
+                <div class="g-approach" aria-hidden="true"></div>
                 <div id="globe-points"></div>
+                <p class="globe-hint" id="globe-hint" aria-live="polite"></p>
             </div>
         </div>
     </section>
+    <aside class="explore-tip" aria-label="Tip from Harley">
+        <div class="explore-tip-bubble-wrap">
+            <div class="explore-tip-bubble">
+                <div class="explore-tip-kicker">
+                    <span class="explore-tip-name">A tip from Harley</span>
+                </div>
+                <p><span>Don’t know where to start?</span><button type="button" class="explore-tip-go" id="explore-tip-go">Start with Eagle <i aria-hidden="true">→</i></button></p>
+            </div>
+            <span class="explore-tip-tail" aria-hidden="true"></span>
+        </div>
+        <div class="explore-tip-figure">
+            <img class="explore-tip-astro" src="assets/mascot/harley.png" alt="Harley the astronaut">
+        </div>
+    </aside>
 
     <section id="mission" class="page">
         <div class="mis">
@@ -2029,7 +2307,7 @@
             </div>
             <figure class="active" data-m="0">
                 <div class="im"><img
-                        src="assets/missions/m0-1.jpg"
+                        loading="lazy" decoding="async" data-src="assets/missions/m0-1.jpg"
                         alt="Eagle lunar module on the Moon"></div>
                 <figcaption>
                     <h3>Hi, Moons!</h3>Do you know who I am? I’m Eagle, the Lunar Module of Apollo 11, and the first
@@ -2041,7 +2319,7 @@
             </figure>
             <figure class="sq" data-m="0">
                 <div class="im"><img
-                        src="assets/missions/m0-2.jpg"
+                        loading="lazy" decoding="async" data-src="assets/missions/m0-2.jpg"
                         alt="Astronauts on the lunar surface"></div>
                 <figcaption>Guess what, Moons? I wasn’t alone on this incredible adventure! There were three astronauts
                     on our mission: Neil Armstrong, Buzz Aldrin, and Michael Collins, while Michael stayed aboard the
@@ -2052,7 +2330,7 @@
             </figure>
             <figure class="sq" data-m="0">
                 <div class="im"><img
-                        src="assets/missions/m0-3.jpg"
+                        loading="lazy" decoding="async" data-src="assets/missions/m0-3.jpg"
                         alt="Astronauts collecting lunar samples"></div>
                 <figcaption>Look what I found, Moons! The Moon is full of hidden treasures. My astronauts collected
                     21.55 kg of lunar rock, soil, and core tube samples to take back to Earth, traversing a total
@@ -2063,7 +2341,7 @@
             </figure>
             <figure data-m="0">
                 <div class="im"><img
-                        src="assets/missions/m0-4.jpg"
+                        loading="lazy" decoding="async" data-src="assets/missions/m0-4.jpg"
                         alt="Parts of the lunar module"></div>
                 <figcaption>
                     <h3>🔧 Meet My Parts!</h3><em>Every part of me had a special job, Moons! Let’s take a closer look
@@ -2071,131 +2349,131 @@
                 </figcaption>
             </figure>
                         <figure data-m="1">
-                <div class="im"><img src="assets/missions/m1-1.jpg" alt="Apollo 12 lunar module Intrepid and ALSEP"></div>
+                <div class="im"><img loading="lazy" decoding="async" data-src="assets/missions/m1-1.jpg" alt="Apollo 12 lunar module Intrepid and ALSEP"></div>
                 <figcaption><h3>Hi, Moons!</h3>Guess who I am, Moons? I’m Intrepid, the Lunar Module of Apollo 12, and the second crewed vehicle to land on the Moon! I blasted off on November 14, 1969 aboard a giant Saturn V rocket, carrying Commander Pete Conrad and Alan Bean. On November 19, I touched down in the Ocean of Storms, just 180 meters from the robotic Surveyor 3 — history’s first pinpoint Moon landing!</figcaption>
             </figure>
             <figure class="sq" data-m="1">
-                <div class="im"><img src="assets/missions/m1-2.jpg" alt="Intrepid near Surveyor 3"></div>
+                <div class="im"><img loading="lazy" decoding="async" data-src="assets/missions/m1-2.jpg" alt="Intrepid near Surveyor 3"></div>
                 <figcaption>Guess what, Moons? My astronauts explored the Moon for 7 hours 45 minutes on two moonwalks, while Richard Gordon waited above in orbit. They walked right down into Surveyor Crater to visit Surveyor 3 and brought back about 10 kg of its parts, plus 34.35 kg of rock and soil samples!</figcaption>
             </figure>
             <figure class="sq" data-m="1">
-                <div class="im"><img src="assets/missions/m1-3.jpg" alt="The ALSEP science station"></div>
+                <div class="im"><img loading="lazy" decoding="async" data-src="assets/missions/m1-3.jpg" alt="The ALSEP science station"></div>
                 <figcaption>I left a gift behind, Moons! My astronauts set up ALSEP, a nuclear-powered science station with six instruments that listened for moonquakes and measured the Sun’s wind. It kept sending discoveries to Earth until September 30, 1977 — nearly eight years! And when my ascent stage crashed back into the Moon, it made the first artificial moonquake ever recorded.</figcaption>
             </figure>
             <figure data-m="1">
-                <div class="im"><img src="assets/missions/m1-4.jpg" alt="Parts of Apollo 12 – Intrepid"></div>
+                <div class="im"><img loading="lazy" decoding="async" data-src="assets/missions/m1-4.jpg" alt="Parts of Apollo 12 – Intrepid"></div>
                 <figcaption><h3>🔧 Meet My Parts!</h3><em>Every part of me had a special job, Moons! From my octagonal descent stage with four landing legs to my crew cabin with two triangular windows and my 45,000 N descent engine, every piece helped me land safely. Ready to explore? 😉</em></figcaption>
             </figure>
             <figure data-m="2">
-                <div class="im lt"><img src="assets/missions/m2-1.jpg" alt="Surveyor lander"></div>
+                <div class="im lt"><img loading="lazy" decoding="async" data-src="assets/missions/m2-1.jpg" alt="Surveyor lander"></div>
                 <figcaption><h3>Hi, Moons!</h3>Guess what? We’re the Surveyor Landers, NASA’s robotic Moon probes from the 1960s! Five of us touched down between 1966 and 1968. Our big mission was to prove that soft landings on the Moon were possible — and that the lunar soil was firm enough for Apollo astronauts to walk on safely!</figcaption>
             </figure>
             <figure class="sq" data-m="2">
-                <div class="im two"><img src="assets/missions/m2-2.jpg" alt="Surveyor landing sites"><img src="assets/missions/extra-1.jpg" alt="Surveyor landing sites"></div>
+                <div class="im two"><img loading="lazy" decoding="async" data-src="assets/missions/m2-2.jpg" alt="Surveyor landing sites"><img loading="lazy" decoding="async" data-src="assets/missions/extra-1.jpg" alt="Surveyor landing sites"></div>
                 <figcaption>We may be family, Moons, but we had different homes! Surveyor 1, 3, 5 and 6 landed on flat plains like Oceanus Procellarum and Mare Tranquillitatis to scout safe spots for Apollo. Surveyor 7 landed near rocky Tycho Crater to explore the rugged lunar highlands!</figcaption>
             </figure>
             <figure class="sq" data-m="2">
-                <div class="im"><img src="assets/missions/m2-3.jpg" alt="Two Surveyor landers on the Moon"></div>
+                <div class="im"><img loading="lazy" decoding="async" data-src="assets/missions/m2-3.jpg" alt="Two Surveyor landers on the Moon"></div>
                 <figcaption>We did way more than anyone expected! Surveyor 1 made America’s first soft Moon landing in 1966 and sent 11,240 photos. Surveyor 3 dug 17.5 cm trenches and was visited by Apollo 12 astronauts in 1969. Surveyor 6 made the first liftoff from the Moon, hopping 3 meters! Together, we beamed back nearly 90,000 pictures.</figcaption>
             </figure>
             <figure data-m="2">
-                <div class="im"><img src="assets/missions/m2-4.jpg" alt="Parts of Surveyor Landers"></div>
+                <div class="im"><img loading="lazy" decoding="async" data-src="assets/missions/m2-4.jpg" alt="Parts of Surveyor Landers"></div>
                 <figcaption><h3>🔧 Meet My Parts!</h3><em>Every part of us had a special job, Moons! From our solar panels that collected sunlight to our TV cameras and robotic soil scoops, every piece helped us explore the Moon. Ready to discover how we work? 😉</em></figcaption>
             </figure>
             <figure data-m="3">
-                <div class="im lt"><img src="assets/missions/m3-1.jpg" alt="Viking lander"></div>
+                <div class="im lt"><img loading="lazy" decoding="async" data-src="assets/missions/m3-1.jpg" alt="Viking lander"></div>
                 <figcaption><h3>Hi, Moons!</h3>Guess what? We’re Viking 1 and Viking 2, NASA’s first landers to successfully operate on Mars! We touched down in 1976 and still rest in the exact spots where we landed. Our mission was to take the first clear photos from the surface of Mars, track Martian weather, and run three biology experiments on the soil to search for signs of life!</figcaption>
             </figure>
             <figure class="sq" data-m="3">
-                <div class="im two"><img src="assets/missions/m3-2.jpg" alt="Viking landing sites on Mars"><img src="assets/missions/extra-2.jpg" alt="Viking landing sites on Mars"></div>
+                <div class="im two"><img loading="lazy" decoding="async" data-src="assets/missions/m3-2.jpg" alt="Viking landing sites on Mars"><img loading="lazy" decoding="async" data-src="assets/missions/extra-2.jpg" alt="Viking landing sites on Mars"></div>
                 <figcaption>We may be twins, Moons, but we landed 6,500 km apart! Viking 1 landed in Chryse Planitia (“Golden Plain”) on July 20, 1976, surrounded by sand drifts and boulders. Viking 2 landed in Utopia Planitia on September 3, 1976, a flat rocky plain where white frost formed in winter!</figcaption>
             </figure>
             <figure class="sq" data-m="3">
-                <div class="im"><img src="assets/missions/m3-3.jpg" alt="Viking lander on Mars"></div>
+                <div class="im"><img loading="lazy" decoding="async" data-src="assets/missions/m3-3.jpg" alt="Viking lander on Mars"></div>
                 <figcaption>We were built for 90 days, but we worked for years right where we touched down! Viking 1 operated for over 6 years, until November 1982, and Viking 2 studied Utopia Planitia for nearly 4 years, until April 1980. Together, we sent 4,500 surface photos and discovered all the key chemical elements needed for life!</figcaption>
             </figure>
             <figure data-m="3">
-                <div class="im"><img src="assets/missions/m3-4.jpg" alt="Parts of Viking 1 &amp; 2"></div>
+                <div class="im"><img loading="lazy" decoding="async" data-src="assets/missions/m3-4.jpg" alt="Parts of Viking 1 &amp; 2"></div>
                 <figcaption><h3>🔧 Meet My Parts!</h3><em>Every part of us had a special job, Moons! From our RTG power generators and weather booms to our cameras and soil scoops that fed our biology labs, every piece helped us explore the Red Planet. Ready to discover how we work? 😉</em></figcaption>
             </figure>
             <figure data-m="4">
-                <div class="im lt"><img src="assets/missions/m4-1.jpg" alt="Sojourner rover"></div>
+                <div class="im lt"><img loading="lazy" decoding="async" data-src="assets/missions/m4-1.jpg" alt="Sojourner rover"></div>
                 <figcaption><h3>Hi, Moons!</h3>Guess what? I’m Sojourner, NASA’s very first Mars rover! I landed on July 4, 1997, delivered safely inside the Mars Pathfinder lander using giant bouncing airbags! My mission was to prove a robotic rover could drive on Mars and study its rocks and soil. And I found rounded pebbles showing Mars was once warm and wet long ago!</figcaption>
             </figure>
             <figure class="sq" data-m="4">
-                <div class="im two"><img src="assets/missions/m4-2.jpg" alt="Ares Vallis and the rocks Yogi and Barnacle Bill"><img src="assets/missions/extra-3.jpg" alt="Ares Vallis and the rocks Yogi and Barnacle Bill"></div>
+                <div class="im two"><img loading="lazy" decoding="async" data-src="assets/missions/m4-2.jpg" alt="Ares Vallis and the rocks Yogi and Barnacle Bill"><img loading="lazy" decoding="async" data-src="assets/missions/extra-3.jpg" alt="Ares Vallis and the rocks Yogi and Barnacle Bill"></div>
                 <figcaption>Pathfinder and I explored Ares Vallis, a flat valley carved by ancient floods, where Pathfinder bounced 15 times before opening my ramps! I rolled right up to Martian boulders nicknamed Barnacle Bill and Yogi to test what they were made of.</figcaption>
             </figure>
             <figure class="sq" data-m="4">
-                <div class="im"><img src="assets/missions/m4-3.jpg" alt="Sojourner rover at sunset on Mars"></div>
+                <div class="im"><img loading="lazy" decoding="async" data-src="assets/missions/m4-3.jpg" alt="Sojourner rover at sunset on Mars"></div>
                 <figcaption>I’m only the size of a microwave (10.6 kg), but I beat every expectation! I was built for just 7 days, yet I explored Mars for 83 Martian days until September 1997. I took 550 rover photos and tested over 15 Martian rocks. Today, I remain parked in Ares Vallis as the pioneer of all Mars rovers!</figcaption>
             </figure>
             <figure data-m="4">
-                <div class="im"><img src="assets/missions/m4-4.jpg" alt="Parts of Sojourner Rover"></div>
+                <div class="im"><img loading="lazy" decoding="async" data-src="assets/missions/m4-4.jpg" alt="Parts of Sojourner Rover"></div>
                 <figcaption><h3>🔧 Meet My Parts!</h3><em>Every part of me had a special job, Moons! From my flat solar panel that collected sunlight to my 6 cleated wheels and APXS rock analyzer, every piece helped me explore the Red Planet. Ready to discover how I work? 😉</em></figcaption>
             </figure>
             <figure data-m="5">
-                <div class="im lt"><img src="assets/missions/m5-1.jpg" alt="Spirit and Opportunity rover"></div>
+                <div class="im lt"><img loading="lazy" decoding="async" data-src="assets/missions/m5-1.jpg" alt="Spirit and Opportunity rover"></div>
                 <figcaption><h3>Hi, Moons!</h3>Guess what? We’re not one, but two adventurous robot explorers! We’re Spirit and Opportunity, NASA’s twin Mars rovers, and we landed on opposite sides of the Red Planet in January 2004. Our mission was to study Martian rocks and soil and search for clues about water. And we discovered evidence that liquid water existed on Mars a long, long time ago!</figcaption>
             </figure>
             <figure class="sq" data-m="5">
-                <div class="im two"><img src="assets/missions/m5-2.jpg" alt="Spirit’s and Opportunity’s homes on Mars"><img src="assets/missions/extra-4.jpg" alt="Spirit’s and Opportunity’s homes on Mars"></div>
+                <div class="im two"><img loading="lazy" decoding="async" data-src="assets/missions/m5-2.jpg" alt="Spirit’s and Opportunity’s homes on Mars"><img loading="lazy" decoding="async" data-src="assets/missions/extra-4.jpg" alt="Spirit’s and Opportunity’s homes on Mars"></div>
                 <figcaption>We may be twins, Moons, but we had different landing spots! Spirit landed in Gusev Crater, a place scientists thought might have once been a lake. Opportunity landed in Meridiani Planum, where minerals suggested that water had once existed.</figcaption>
             </figure>
             <figure class="sq" data-m="5">
-                <div class="im"><img src="assets/missions/m5-3.jpg" alt="Spirit and Opportunity on Mars"></div>
+                <div class="im"><img loading="lazy" decoding="async" data-src="assets/missions/m5-3.jpg" alt="Spirit and Opportunity on Mars"></div>
                 <figcaption>We traveled much farther than anyone expected! Spirit traveled 7.7 km across Mars before its mission ended. Opportunity traveled an incredible 45.16 km before losing contact in June 2018, becoming one of the longest-traveling robotic explorers on another world!</figcaption>
             </figure>
             <figure data-m="5">
-                <div class="im"><img src="assets/missions/m5-4.jpg" alt="Parts of Spirit &amp; Opportunity"></div>
+                <div class="im"><img loading="lazy" decoding="async" data-src="assets/missions/m5-4.jpg" alt="Parts of Spirit &amp; Opportunity"></div>
                 <figcaption><h3>🔧 Meet My Parts!</h3><em>Every part of us had a special job, Moons! From our solar panels that collected sunlight to our cameras that captured amazing views of Mars, every piece helped us explore the Red Planet. Ready to discover how we work? 😉</em></figcaption>
             </figure>
             <figure data-m="6">
-                <div class="im lt"><img src="assets/missions/m6-1.jpg" alt="Phoenix and InSight lander"></div>
+                <div class="im lt"><img loading="lazy" decoding="async" data-src="assets/missions/m6-1.jpg" alt="Phoenix and InSight lander"></div>
                 <figcaption><h3>Hi, Moons!</h3>Guess what? We’re Phoenix (landed May 2008) and InSight (landed November 2018), two robotic Mars landers built with the same three-legged body and round solar panel wings! We looked alike, but we had two different jobs: Phoenix dug into the soil to uncover subsurface water ice, while InSight placed a seismometer on the ground to listen for marsquakes!</figcaption>
             </figure>
             <figure class="sq" data-m="6">
-                <div class="im two"><img src="assets/missions/m6-2.jpg" alt="Phoenix and InSight landing sites"><img src="assets/missions/extra-5.jpg" alt="Phoenix and InSight landing sites"></div>
+                <div class="im two"><img loading="lazy" decoding="async" data-src="assets/missions/m6-2.jpg" alt="Phoenix and InSight landing sites"><img loading="lazy" decoding="async" data-src="assets/missions/extra-5.jpg" alt="Phoenix and InSight landing sites"></div>
                 <figcaption>We landed in two very different regions of the Red Planet! Phoenix landed in Vastitas Borealis in the freezing Martian arctic to dig for ice. InSight landed on Elysium Planitia, a flat, quiet plain near the equator — perfect for feeling Mars’ pulse!</figcaption>
             </figure>
             <figure class="sq" data-m="6">
-                <div class="im"><img src="assets/missions/m6-3.jpg" alt="Phoenix and InSight on Mars"></div>
+                <div class="im"><img loading="lazy" decoding="async" data-src="assets/missions/m6-3.jpg" alt="Phoenix and InSight on Mars"></div>
                 <figcaption>We made historic discoveries before both of us eventually lost solar power! Phoenix dug up bright white water ice and spotted Martian snow before losing power in winter (November 2008). InSight detected over 1,300 marsquakes and revealed Mars’ deep interior layers before dust covered its panels in December 2022!</figcaption>
             </figure>
             <figure data-m="6">
-                <div class="im"><img src="assets/missions/m6-4.jpg" alt="Parts of Phoenix &amp; InSight"></div>
+                <div class="im"><img loading="lazy" decoding="async" data-src="assets/missions/m6-4.jpg" alt="Parts of Phoenix &amp; InSight"></div>
                 <figcaption><h3>🔧 Meet My Parts!</h3><em>Every part of us had a special job, Moons! From our round solar panels that collected sunlight to Phoenix’s ice-digging scoop and InSight’s dome seismometer, every piece helped us explore Mars. Ready to discover how we work? 😉</em></figcaption>
             </figure>
             <figure data-m="7">
-                <div class="im lt"><img src="assets/missions/m7-1.jpg" alt="NEAR Shoemaker spacecraft"></div>
+                <div class="im lt"><img loading="lazy" decoding="async" data-src="assets/missions/m7-1.jpg" alt="NEAR Shoemaker spacecraft"></div>
                 <figcaption><h3>Hi, Moons!</h3>Guess what? I’m NEAR Shoemaker, NASA’s robotic asteroid probe launched in 1996! I became the very first spacecraft in history to orbit an asteroid — and the first to land on one! My mission was to orbit the peanut-shaped near-Earth asteroid 433 Eros, map its craters and boulders up close, and discover what ancient asteroids are made of!</figcaption>
             </figure>
             <figure class="sq" data-m="7">
-                <div class="im two"><img src="assets/missions/m7-2.jpg" alt="Asteroid 433 Eros"><img src="assets/missions/extra-6.jpg" alt="Asteroid 433 Eros"></div>
+                <div class="im two"><img loading="lazy" decoding="async" data-src="assets/missions/m7-2.jpg" alt="Asteroid 433 Eros"><img loading="lazy" decoding="async" data-src="assets/missions/extra-6.jpg" alt="Asteroid 433 Eros"></div>
                 <figcaption>Before settling down on Eros, I visited two rocky worlds! In 1997, I flew past 253 Mathilde, a dark, cratered main-belt asteroid. Then I entered orbit around 433 Eros on February 14, 2000, and touched down near its Himeros saddle on February 12, 2001!</figcaption>
             </figure>
             <figure class="sq" data-m="7">
-                <div class="im"><img src="assets/missions/m7-3.jpg" alt="NEAR Shoemaker resting on Eros"></div>
+                <div class="im"><img loading="lazy" decoding="async" data-src="assets/missions/m7-3.jpg" alt="NEAR Shoemaker resting on Eros"></div>
                 <figcaption>I wasn’t even built as a lander, yet I survived touching down on an asteroid! I orbited Eros for a full year, snapping 160,000 images (10 times more data than planned), and sent bonus science data for two more weeks. Since February 28, 2001, I’ve been resting peacefully on the surface of 433 Eros!</figcaption>
             </figure>
             <figure data-m="7">
-                <div class="im"><img src="assets/missions/m7-4.jpg" alt="Parts of NEAR Shoemaker"></div>
+                <div class="im"><img loading="lazy" decoding="async" data-src="assets/missions/m7-4.jpg" alt="Parts of NEAR Shoemaker"></div>
                 <figcaption><h3>🔧 Meet My Parts!</h3><em>Every part of me had a special job, Moons! From my four windmill solar panels to my laser rangefinder and gamma-ray spectrometer that studied Eros right from the ground, every piece helped me explore an asteroid. Ready to discover how I work? 😉</em></figcaption>
             </figure>
             <figure data-m="8">
-                <div class="im lt"><img src="assets/missions/m8-1.jpg" alt="Dawn spacecraft"></div>
+                <div class="im lt"><img loading="lazy" decoding="async" data-src="assets/missions/m8-1.jpg" alt="Dawn spacecraft"></div>
                 <figcaption><h3>Hi, Moons!</h3>Guess what? I’m Dawn, NASA’s interplanetary probe launched in 2007! Using super-efficient ion engines, I became the first spacecraft ever to orbit two different worlds beyond Earth! My mission was to travel to the asteroid belt between Mars and Jupiter and map its two largest worlds, Vesta and Ceres, to uncover secrets from the birth of our solar system!</figcaption>
             </figure>
             <figure class="sq" data-m="8">
-                <div class="im two"><img src="assets/missions/m8-2.jpg" alt="Asteroid Vesta and dwarf planet Ceres"><img src="assets/missions/extra-7.jpg" alt="Asteroid Vesta and dwarf planet Ceres"></div>
+                <div class="im two"><img loading="lazy" decoding="async" data-src="assets/missions/m8-2.jpg" alt="Asteroid Vesta and dwarf planet Ceres"><img loading="lazy" decoding="async" data-src="assets/missions/extra-7.jpg" alt="Asteroid Vesta and dwarf planet Ceres"></div>
                 <figcaption>I orbited and mapped two very different worlds! Vesta (2011–2012) is a rocky protoplanet with the giant Rheasilvia crater and a mountain more than twice as tall as Mount Everest. Ceres (2015–2018) is an icy dwarf planet famous for glowing white salt spots inside Occator Crater!</figcaption>
             </figure>
             <figure class="sq" data-m="8">
-                <div class="im"><img src="assets/missions/m8-3.jpg" alt="Dawn orbiting Ceres"></div>
+                <div class="im"><img loading="lazy" decoding="async" data-src="assets/missions/m8-3.jpg" alt="Dawn orbiting Ceres"></div>
                 <figcaption>My blue-glowing xenon ion engines took me farther than anyone dreamed! I spent 14 months mapping Vesta’s craters and canyons before cruising on to Ceres, which I orbited starting in March 2015. After running out of fuel in November 2018, I remain in a perpetual, unpowered orbit around Ceres!</figcaption>
             </figure>
             <figure data-m="8">
-                <div class="im"><img src="assets/missions/m8-4.jpg" alt="Parts of Dawn Spacecraft"></div>
+                <div class="im"><img loading="lazy" decoding="async" data-src="assets/missions/m8-4.jpg" alt="Parts of Dawn Spacecraft"></div>
                 <figcaption><h3>🔧 Meet My Parts!</h3><em>Every part of me had a special job, Moons! From my giant solar wings and xenon ion thrusters to my framing cameras that mapped Vesta and Ceres in 3D, every piece helped me explore the asteroid belt. Ready to discover how I work? 😉</em></figcaption>
             </figure>
             <div class="mission-controls">
@@ -2363,6 +2641,9 @@
         </div>
     </div>
 
+    <div id="globe-depart" aria-hidden="true"></div>
+    <div id="globe-flash" aria-hidden="true"></div>
+
     <script src="js/explore.js"></script>
     <script type="module" src="js/globe.js"></script>
     <script src="js/dual-craft.js"></script>
@@ -2522,7 +2803,7 @@
             let ac = null, master = null, musicBus = null, toneFilter = null;
             let bus = null, started = false, ducked = false, unlocked = false;
             let sceneName = 'space', seq = null, timer = 0, hatNoise = null;
-            let lastWhoosh = 0, lastEnter = 0, lastUi = 0;
+            let lastWhoosh = 0, lastEnter = 0, lastUi = 0, lastDepart = 0;
 
             function noiseBuffer(a, seconds) {
                 const len = Math.max(1, Math.floor(a.sampleRate * seconds));
@@ -2789,6 +3070,70 @@
                 toneFilter.frequency.linearRampToValueAtTime(f, t + 2.4);
             }
 
+                        /* Leaving for a landing site: a smooth cinematic lift instead of the
+               old bright chimes. A soft air sweep opens, a warm bass swell carries
+               the motion, and three low harmonic notes resolve like a gentle chord. */
+            function departure() {
+                if (!prefs.fx) return;
+                const a = running();
+                if (!a) return;
+                const now = performance.now();
+                if (now - lastDepart < 900) return;
+                lastDepart = now;
+                const t = a.currentTime;
+
+                // Soft air around the camera.
+                const src = a.createBufferSource();
+                src.buffer = noiseBuffer(a, 2.4);
+                const bp = a.createBiquadFilter();
+                bp.type = 'bandpass';
+                bp.Q.value = 0.9;
+                bp.frequency.setValueAtTime(160, t);
+                bp.frequency.exponentialRampToValueAtTime(1500, t + 0.55);
+                bp.frequency.exponentialRampToValueAtTime(360, t + 1.85);
+                const air = a.createGain();
+                air.gain.setValueAtTime(0.0001, t);
+                air.gain.exponentialRampToValueAtTime(0.055, t + 0.34);
+                air.gain.exponentialRampToValueAtTime(0.0001, t + 1.85);
+                src.connect(bp); bp.connect(air); air.connect(a.destination);
+                src.start(t); src.stop(t + 1.95);
+
+                // Warm bass swell, kept low so it supports rather than announces.
+                const sub = a.createOscillator(), subGain = a.createGain();
+                sub.type = 'sine';
+                sub.frequency.setValueAtTime(55, t);
+                sub.frequency.exponentialRampToValueAtTime(34, t + 0.9);
+                subGain.gain.setValueAtTime(0.0001, t);
+                subGain.gain.exponentialRampToValueAtTime(0.032, t + 0.12);
+                subGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.95);
+                sub.connect(subGain); subGain.connect(a.destination);
+                sub.start(t); sub.stop(t + 1.0);
+
+                // A gentle rising tone, like the camera lifting away.
+                const lift = a.createOscillator(), liftGain = a.createGain();
+                lift.type = 'sine';
+                lift.frequency.setValueAtTime(110, t);
+                lift.frequency.exponentialRampToValueAtTime(220, t + 1.05);
+                liftGain.gain.setValueAtTime(0.0001, t);
+                liftGain.gain.exponentialRampToValueAtTime(0.018, t + 0.32);
+                liftGain.gain.exponentialRampToValueAtTime(0.0001, t + 1.2);
+                lift.connect(liftGain); liftGain.connect(a.destination);
+                lift.start(t); lift.stop(t + 1.25);
+
+                // Three soft harmonic notes: C - E - G, low and unhurried.
+                [262, 330, 392].forEach((f, i) => {
+                    const at = t + 0.78 + i * 0.16;
+                    const o = a.createOscillator(), g = a.createGain();
+                    o.type = 'sine';
+                    o.frequency.setValueAtTime(f, at);
+                    g.gain.setValueAtTime(0.0001, at);
+                    g.gain.exponentialRampToValueAtTime(0.012, at + 0.05);
+                    g.gain.exponentialRampToValueAtTime(0.0001, at + 0.85);
+                    o.connect(g); g.connect(a.destination);
+                    o.start(at); o.stop(at + 0.9);
+                });
+            }
+
             function whoosh() {
                 if (!prefs.fx) return;
                 const a = running();
@@ -2962,7 +3307,7 @@
                 toggleMusic() { setMusic(!prefs.music) },
                 env(world) { mood(world); whoosh() },
                 applyMood(world) { mood(world) },
-                enter, ui, hop: whoosh,
+                enter, ui, hop: whoosh, depart: departure,
                 duck(on) {
                     ducked = !!on;
                     if (!ac || !started) return;
@@ -3012,11 +3357,10 @@
 
         function preloadMissionAudio(index) {
             if (index < 0 || index >= missionSlides.length) return;
-            preloadClipById(clipIdFor(index, 'en'));
-            preloadClipById(clipIdFor(index, 'ar'));
+            const lang = voiceMode === 2 ? 'ar' : 'en';
+            preloadClipById(clipIdFor(index, lang));
             if (index + 1 < missionSlides.length) {
-                preloadClipById(clipIdFor(index + 1, 'en'));
-                preloadClipById(clipIdFor(index + 1, 'ar'));
+                preloadClipById(clipIdFor(index + 1, lang));
             }
         }
 
@@ -3030,11 +3374,10 @@
                         clips[id] = { src: CLIP_ROOT + c.file, dur: +c.duration || 0 };
                     }
                 }
-                // Preload initial mission audio immediately
+                // The default voiceover for the opening page only; other
+                // languages and pages load when the reader asks for them.
                 preloadClipById('eagle/01-en');
-                preloadClipById('eagle/01-ar');
                 preloadClipById('eagle/02-en');
-                preloadClipById('eagle/02-ar');
             })
             .catch(() => { });
 
@@ -3159,6 +3502,18 @@
         }, { threshold: 0.5 }) : null;
         if (slideWatch) missionSlides.forEach(fig => slideWatch.observe(fig));
 
+        function warmSlideImages(index) {
+            for (let i = index; i <= index + 1; i++) {
+                const fig = missionSlides[i];
+                if (!fig) continue;
+                fig.querySelectorAll('img').forEach(img => {
+                    img.loading = 'eager';
+                    if (!img.getAttribute('src') && img.dataset.src) img.setAttribute('src', img.dataset.src);
+                    if (img.decode) img.decode().catch(() => { });
+                });
+            }
+        }
+
         function showMissionSlide(index) {
             if (window.SolvixHeader) window.SolvixHeader.lock(1000);
             clearInterval(missionTimer); clearTimeout(missionDelay); stopVoice();
@@ -3183,6 +3538,7 @@
             syncVehicle(mi);
             missionNotice.hidden = true;
             preloadMissionAudio(index);
+            warmSlideImages(index);
             armSlide(index);
 
             // Keep browser URL synchronized with displayed device
@@ -3953,14 +4309,27 @@
             if (window.SolvixViewer) window.SolvixViewer.unmount();
         }
 
+        let prefetchTimer = 0;
+        function prefetchVehicle(mi, delay) {
+            clearTimeout(prefetchTimer);
+            const v = VEHICLES[mi];
+            if (!v || !window.SolvixViewer) return;
+            const run = () => {
+                try {
+                    if (window.SolvixViewer.preloadModel) window.SolvixViewer.preloadModel(v.model);
+                    if (window.SolvixViewer.preloadWorld) window.SolvixViewer.preloadWorld(v.world === 'Asteroid belt' ? 'Deep space' : v.world);
+                } catch (e) { }
+            };
+            prefetchTimer = setTimeout(run, delay == null ? 2600 : delay);
+        }
+
         function syncVehicle(mi) {
             const v = VEHICLES[mi];
             if (!v) return;
             if (typeof preloadClipById === 'function') {
-                preloadClipById(v.id + '/01-en');
-                preloadClipById(v.id + '/01-ar');
-                preloadClipById(v.id + '/02-en');
-                preloadClipById(v.id + '/02-ar');
+                const lang = voiceMode === 2 ? 'ar' : 'en';
+                preloadClipById(v.id + '/01-' + lang);
+                preloadClipById(v.id + '/02-' + lang);
             }
             const world = document.getElementById('mission-world');
             if (world) world.textContent = v.world === 'Asteroid belt' ? 'Asteroid belt · ' + v.where : (v.world === 'Mars' ? 'Mars' : 'The Moon') + ' · ' + v.where;
@@ -3969,7 +4338,10 @@
             const loading = document.getElementById('mission-loading');
             if (loading) loading.hidden = false;
             if (window.SolvixViewer) {
-                window.SolvixViewer.mount(v.model, v.world === 'Asteroid belt' ? 'Deep space' : v.world, () => { if (loading) loading.hidden = true; });
+                window.SolvixViewer.mount(v.model, v.world === 'Asteroid belt' ? 'Deep space' : v.world, () => {
+                    if (loading) loading.hidden = true;
+                    prefetchVehicle((mi + 1) % VEHICLES.length);
+                });
             } else {
                 pendingViewer = mi;
             }
@@ -3986,6 +4358,13 @@
             if (!target) return;
 
             const from = VEHICLES[currentVehicle];
+            if (window.SolvixViewer) {
+                try {
+                    if (window.SolvixViewer.preloadModel) window.SolvixViewer.preloadModel(target.model);
+                    if (window.SolvixViewer.preloadWorld) window.SolvixViewer.preloadWorld(target.world === 'Asteroid belt' ? 'Deep space' : target.world);
+                    warmSlideImages(groupStart(mi));
+                } catch (e) { }
+            }
             const newUrl = getVehicleUrl(mi);
             try {
                 if (window.location.pathname !== newUrl) {
@@ -4004,6 +4383,7 @@
 
             currentVehicle = mi;
             cur = 'mission';
+            if (window.SolvixHeader) window.SolvixHeader.lock(900);
             jumpToTop();
 
             if (options.withTransfer && window.SolvixExplore && from && from !== target) {
@@ -4027,13 +4407,35 @@
             navigateToDevice(mi, { withTransfer: false });
         }
 
+        // The Explore globe is heavy, so only build it when Explore is opened,
+        // or after the home page has been idle for a moment.
+        let exploreBooted = false;
+        let exploreBootTimer = 0;
+        function bootExplore() {
+            clearTimeout(exploreBootTimer);
+            exploreBootTimer = 0;
+            if (exploreBooted || !window.SolvixExplore) return;
+            exploreBooted = true;
+            window.SolvixExplore.init(openVehicleFromGlobe);
+        }
+        function scheduleExplore() {
+            if (exploreBooted || exploreBootTimer) return;
+            exploreBootTimer = setTimeout(() => {
+                exploreBootTimer = 0;
+                if (cur === 'home') bootExplore();
+            }, 5000);
+        }
+        function cancelExploreBoot() {
+            if (!exploreBootTimer) return;
+            clearTimeout(exploreBootTimer);
+            exploreBootTimer = 0;
+        }
+
         function nextEquipment() {
             if (!VEHICLES.length) return;
             const nextIdx = (currentVehicle + 1) % VEHICLES.length;
             navigateToDevice(nextIdx, { withTransfer: true });
         }
-
-        if (window.SolvixExplore) window.SolvixExplore.init(openVehicleFromGlobe);
 
         // The bar gets out of the way on the way down and comes back on the way up.
         (() => {
@@ -4045,10 +4447,6 @@
             let lastY = window.scrollY;
             let quietUntil = 0;
             let upDistance = 0;
-            const onMissionPage = () => {
-                const page = document.getElementById('mission');
-                return !!page && page.classList.contains('on');
-            };
             // A new page, a new slide or a scroll we started ourselves must not be
             // mistaken for the reader scrolling down.
             window.SolvixHeader = {
@@ -4064,13 +4462,6 @@
             window.addEventListener('scroll', () => {
                 const y = Math.max(0, window.scrollY);
                 const now = performance.now();
-                // The equipment pages keep their bar: reading a story never hides it.
-                if (onMissionPage()) {
-                    bar.classList.remove('is-tucked');
-                    lastY = y;
-                    upDistance = 0;
-                    return;
-                }
                 if (now < quietUntil) { lastY = y; upDistance = 0; return; }
                 const step = y - lastY;
                 if (Math.abs(step) < 6) return;
@@ -4165,10 +4556,19 @@
             tagParts.forEach(part => { part.textContent = ''; });
         }
         function paintRoute(h, id) {
+            if (id === 'worlds') bootExplore();
+            else if (id === 'home') scheduleExplore();
+            else cancelExploreBoot();
             const leaving = document.querySelector('.page.on');
             const from = leaving ? leaving.id : '';
             if (from === 'home' && id !== 'home') clearTagline();
             document.querySelectorAll('.page').forEach(p => p.classList.toggle('on', p.id === id));
+            // The tip lives outside the page so it can animate; start its reveal
+            // here, before the globe work below can hold up the first paint.
+            if (window.SolvixExplore) {
+                if (id === 'worlds' && window.SolvixExplore.revealTip) window.SolvixExplore.revealTip();
+                else if (window.SolvixExplore.hideTip) window.SolvixExplore.hideTip();
+            }
             document.querySelectorAll('#nav a').forEach(a => {
                 const href = a.getAttribute('href');
                 const isMatch = href === '#' + h || href === '/' + h || (h === 'home' && (href === '/' || href === '#home'));
@@ -4198,7 +4598,6 @@
             GM.show(id === 'game' ? 'menu' : 'none');
             if (window.SolvixHeader) {
                 window.SolvixHeader.lock(900);
-                if (id === 'mission') window.SolvixHeader.show();
             }
             jumpToTop();
             if (window.SolvixNav) window.SolvixNav.settle(h);
@@ -4249,6 +4648,12 @@
             }
             function fly(h, id, paint) {
                 if (flying) { wipe(); paint(); flying = false; }
+                // Start the tip's exit on the click, not 280ms later when the page
+                // swaps; otherwise it is gone before its leave beat can play.
+                if (id !== 'worlds' && window.SolvixExplore && window.SolvixExplore.hideTip &&
+                    document.getElementById('worlds') && document.getElementById('worlds').classList.contains('on')) {
+                    window.SolvixExplore.hideTip();
+                }
                 const look = LOOK[id] || LOOK.soon;
                 const flip = ORDER.indexOf(h) - ORDER.indexOf(lastKey) < 0 ? -1 : 1;
                 body.style.setProperty('--out-s', look.out[0]);
@@ -4358,6 +4763,7 @@
             if (routeInfo.isDeviceRoute) {
                 const targetMi = routeInfo.deviceIndex;
                 currentVehicle = targetMi;
+                if (window.SolvixHeader) window.SolvixHeader.lock(900);
                 jumpToTop();
                 paintRoute('mission', 'mission');
                 jumpToTop();

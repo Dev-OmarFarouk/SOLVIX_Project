@@ -13,6 +13,13 @@ export const HTML = path.join(ROOT, 'solvix.html');
 
 const EMOJI = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F]/gu;
 
+/* A few lines need a spoken-only pause. TTS otherwise runs "Moons! The Moon"
+   together as "Moon science" in Eagle's third slide. The visible caption keeps
+   its original punctuation; only the narration text gets the extra pause. */
+const SPOKEN_FIXES = {
+  'eagle/03': text => text.replace('Look what I found, Moons! The Moon', 'Look what I found, Moons! ... The Moon')
+};
+
 /** The same cleanup the page applies before speaking. */
 export function clean(text) {
   return String(text || '')
@@ -116,14 +123,17 @@ export function readStories() {
     const n = (seen.get(fig.machine) || 0) + 1;
     seen.set(fig.machine, n);
     const num = String(n).padStart(2, '0');
+    const id = car.id + '/' + num;
+    const en = clean(fig.text);
+    const fix = SPOKEN_FIXES[id];
     return {
-      id: car.id + '/' + num,
+      id,
       machine: car.id,
       machineName: car.name,
       world: car.world,
       slide: n,
       order: i,
-      texts: { en: clean(fig.text), ar: ar[i] }
+      texts: { en: fix ? clean(fix(en)) : en, ar: ar[i] }
     };
   });
 }

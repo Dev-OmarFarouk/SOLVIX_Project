@@ -79,13 +79,13 @@
       "lang": "en",
       "model": "gemini-3.8-flash-tts",
       "voice": "Kore",
-      "hash": "f0143bf44783d186125c660720c16782",
-      "chars": 497,
+      "hash": "4c750b44ce39ac2d5e1c2c227f0e0c4f",
+      "chars": 501,
       "file": "eagle/03-en.mp3",
       "status": "ok",
-      "bytes": 539181,
-      "duration": 44.86,
-      "updatedAt": "2026-11-15T15:14:05.578Z"
+      "bytes": 504045,
+      "duration": 41.94,
+      "generatedAt": "2026-11-19T01:43:08.250Z"
     },
     "eagle/03-ar": {
       "id": "eagle/03-ar",
@@ -113,13 +113,14 @@
       "lang": "en",
       "model": "gemini-3.8-flash-tts",
       "voice": "Kore",
-      "hash": "b54138b2fe3a17a798bd18c06ba76b4b",
-      "chars": 134,
+      "hash": "f7579b8278fd73c5e2d1333dfc19c034",
+      "chars": 138,
       "file": "eagle/04-en.mp3",
       "status": "ok",
-      "bytes": 140301,
-      "duration": 11.62,
-      "updatedAt": "2026-11-15T15:14:05.666Z"
+      "bytes": 85485,
+      "duration": 11.08,
+      "batched": 4,
+      "generatedAt": "2026-11-19T03:59:29.309Z"
     },
     "eagle/04-ar": {
       "id": "eagle/04-ar",
@@ -321,8 +322,8 @@
       "chars": 261,
       "file": "surveyor/03-ar.mp3",
       "status": "ok",
-      "bytes": 356013,
-      "duration": 29.61,
+      "bytes": 401517,
+      "duration": 33.39,
       "updatedAt": "2026-11-15T15:14:06.453Z"
     },
     "surveyor/04-ar": {
@@ -338,8 +339,8 @@
       "chars": 167,
       "file": "surveyor/04-ar.mp3",
       "status": "ok",
-      "bytes": 226413,
-      "duration": 18.8,
+      "bytes": 181773,
+      "duration": 15.09,
       "updatedAt": "2026-11-15T15:14:06.570Z"
     },
     "viking/01-ar": {
@@ -389,8 +390,8 @@
       "chars": 232,
       "file": "viking/03-ar.mp3",
       "status": "ok",
-      "bytes": 278541,
-      "duration": 23.15,
+      "bytes": 332685,
+      "duration": 27.65,
       "updatedAt": "2026-11-15T15:14:06.915Z"
     },
     "viking/04-ar": {
@@ -406,8 +407,8 @@
       "chars": 192,
       "file": "viking/04-ar.mp3",
       "status": "ok",
-      "bytes": 258957,
-      "duration": 21.52,
+      "bytes": 205965,
+      "duration": 17.09,
       "updatedAt": "2026-11-15T15:14:07.066Z"
     },
     "sojourner/01-ar": {
@@ -508,8 +509,8 @@
       "chars": 175,
       "file": "spirit-opportunity/02-ar.mp3",
       "status": "ok",
-      "bytes": 240525,
-      "duration": 19.97,
+      "bytes": 199341,
+      "duration": 16.55,
       "updatedAt": "2026-11-15T15:14:07.838Z"
     },
     "spirit-opportunity/03-ar": {
@@ -525,8 +526,8 @@
       "chars": 227,
       "file": "spirit-opportunity/03-ar.mp3",
       "status": "ok",
-      "bytes": 246573,
-      "duration": 20.47,
+      "bytes": 288045,
+      "duration": 23.95,
       "updatedAt": "2026-11-15T15:14:07.932Z"
     },
     "spirit-opportunity/04-ar": {
@@ -559,8 +560,8 @@
       "chars": 283,
       "file": "phoenix-insight/01-ar.mp3",
       "status": "ok",
-      "bytes": 429453,
-      "duration": 35.72,
+      "bytes": 374445,
+      "duration": 31.14,
       "updatedAt": "2026-11-15T15:14:08.203Z"
     },
     "phoenix-insight/02-ar": {
@@ -576,8 +577,8 @@
       "chars": 215,
       "file": "phoenix-insight/02-ar.mp3",
       "status": "ok",
-      "bytes": 212013,
-      "duration": 17.61,
+      "bytes": 267885,
+      "duration": 22.25,
       "updatedAt": "2026-11-15T15:14:08.323Z"
     },
     "phoenix-insight/03-ar": {
@@ -912,13 +913,14 @@
       "lang": "en",
       "model": "gemini-3.8-flash-tts",
       "voice": "Kore",
-      "hash": "d3c4625c38a0780c6323eff69ad58385",
-      "chars": 229,
+      "hash": "730ea4880b17a0bbe2cb73af65524680",
+      "chars": 233,
       "file": "sojourner/04-en.mp3",
       "status": "ok",
-      "bytes": 233901,
-      "duration": 19.43,
-      "updatedAt": "2026-11-15T15:14:07.507Z"
+      "bytes": 143469,
+      "duration": 18.33,
+      "batched": 4,
+      "generatedAt": "2026-11-19T03:59:29.333Z"
     },
     "spirit-opportunity/01-en": {
       "id": "spirit-opportunity/01-en",
@@ -1116,13 +1118,14 @@
       "lang": "en",
       "model": "gemini-3.8-flash-tts",
       "voice": "Kore",
-      "hash": "d8c830ead1954ddc9adc63ad97d99b27",
-      "chars": 257,
+      "hash": "2173af76361c8a4b78ae6c7fdcd5b3af",
+      "chars": 261,
       "file": "near/04-en.mp3",
       "status": "ok",
-      "bytes": 252045,
-      "duration": 20.94,
-      "generatedAt": "2026-11-15T16:28:23.186Z"
+      "bytes": 155781,
+      "duration": 19.19,
+      "batched": 4,
+      "generatedAt": "2026-11-19T03:59:29.340Z"
     },
     "dawn/01-en": {
       "id": "dawn/01-en",
@@ -1184,13 +1187,14 @@
       "lang": "en",
       "model": "gemini-3.8-flash-tts",
       "voice": "Kore",
-      "hash": "1006ac0d33d86f2a761263f6b78f2866",
-      "chars": 243,
+      "hash": "a6664f072c346045d54fb7170d710511",
+      "chars": 247,
       "file": "dawn/04-en.mp3",
       "status": "ok",
-      "bytes": 257805,
-      "duration": 21.42,
-      "generatedAt": "2026-11-15T16:30:12.647Z"
+      "bytes": 153093,
+      "duration": 18.72,
+      "batched": 4,
+      "generatedAt": "2026-11-19T03:59:29.348Z"
     },
     "sojourner/02-en": {
       "id": "sojourner/02-en",
@@ -1227,5 +1231,5 @@
       "generatedAt": "2026-11-15T16:50:47.073Z"
     }
   },
-  "updatedAt": "2026-11-15T16:50:47.075Z"
+  "updatedAt": "2026-11-19T04:11:02.148Z"
 }

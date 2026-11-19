@@ -51,34 +51,14 @@ function mount(model, world, onReady) {
   }
 }
 
-// Background warmup of terrain computations and 3D models during idle time
-function warmup() {
-  try {
-    preloadMoonGround();
-    setTimeout(() => { try { preloadMarsGround(); } catch (e) {} }, 1200);
-  } catch (e) {}
-
-  const sequence = ['lm', 'surveyor', 'viking', 'sojourner', 'mer', 'curiosity', 'perseverance', 'insight', 'phoenix', 'near', 'dawn'];
-  let idx = 0;
-  function next() {
-    if (idx >= sequence.length) return;
-    const m = sequence[idx++];
-    preloadModel(m)
-      .catch(() => null)
-      .finally(() => {
-        setTimeout(next, 600);
-      });
-  }
-  setTimeout(next, 1800);
+// Prepare just the ground for a world the reader is about to open. Nothing is
+// loaded in the background on other pages, so the map and the globe keep the
+// network and the GPU to themselves until a machine is actually requested.
+function preloadWorld(world) {
+  if (world === 'Mars') return preloadMarsGround();
+  if (world === 'Moon') return preloadMoonGround();
+  return Promise.resolve(null);
 }
 
-if (typeof window !== 'undefined') {
-  if (document.readyState === 'complete') {
-    setTimeout(warmup, 500);
-  } else {
-    window.addEventListener('load', () => setTimeout(warmup, 500));
-  }
-}
-
-window.SolvixViewer = { mount, unmount, preloadModel, preloadMoonGround, preloadMarsGround };
+window.SolvixViewer = { mount, unmount, preloadModel, preloadWorld, preloadMoonGround, preloadMarsGround };
 window.dispatchEvent(new Event('solvix:viewer-ready'));

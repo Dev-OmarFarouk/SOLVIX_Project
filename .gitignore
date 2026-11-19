@@ -19,3 +19,7 @@ desktop.ini
 
 # Voiceover internal state cache
 scripts/voiceover/.state/
+
+# Local working artifacts and tooling
+.work/
+tools/

@@ -33,6 +33,7 @@ const opts = {
   status: flag('status'),
   force: flag('force'),
   only: value('only', ''),
+  ids: value('ids', ''),
   lang: value('lang', ''),
   voice: value('voice', ''),
   model: value('model', MODEL),
@@ -181,7 +182,12 @@ async function checkAccess() {
 
 /* --------------------------------- planning ------------------------------- */
 function plan() {
-  const stories = readStories().filter(s => !opts.only || s.id.split('/')[0] === opts.only);
+  const idsList = opts.ids ? opts.ids.split(',').filter(Boolean) : [];
+  const stories = readStories().filter(s => {
+    if (idsList.length) return idsList.includes(s.id);
+    if (!opts.only) return true;
+    return s.id === opts.only || s.id.split('/')[0] === opts.only;
+  });
   const langs = opts.lang ? [opts.lang] : ['en', 'ar'];
   const todo = [], skip = [];
   for (const story of stories) {

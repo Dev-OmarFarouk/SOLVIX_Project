@@ -33,7 +33,7 @@
     { id: 'intrepid', name: 'Intrepid', world: 'Moon', lat: -3.01, lon: -23.42, model: 'lm', group: 1, where: 'Ocean of Storms' },
     { id: 'surveyor', name: 'Surveyor Landers', world: 'Moon', lat: -2.94, lon: -23.44, model: 'surveyor', group: 2, where: 'Oceanus Procellarum' },
     { id: 'viking', name: 'Viking 1 & 2', world: 'Mars', lat: 22.27, lon: -47.95, model: 'viking', group: 3, where: 'Chryse · Utopia' },
-    { id: 'sojourner', name: 'Sojourner', world: 'Mars', lat: 19.13, lon: -33.22, model: 'sojourner', group: 4, where: 'Ares Vallis' },
+    { id: 'sojourner', name: 'Sojourner', world: 'Mars', lat: 19.13, lon: -33.22, model: 'sojourner', group: 4, where: 'Ares Vallis', nudgeY: 26 },
     { id: 'spirit-opportunity', name: 'Spirit & Opportunity', world: 'Mars', lat: -14.57, lon: 175.47, model: 'mer', group: 5, where: 'Gusev · Meridiani' },
     { id: 'phoenix-insight', name: 'Phoenix & InSight', world: 'Mars', lat: 68.22, lon: -125.75, model: 'phoenix', group: 6, where: 'Vastitas Borealis · Elysium' },
     { id: 'near', name: 'NEAR Shoemaker', world: 'Asteroid belt', lat: 21.4, lon: -47.6, model: 'near', group: 7, where: '433 Eros' },
@@ -147,7 +147,7 @@
       // thread free for the rocket and the page around it.
       if (time - self.last < 30) return;
       self.last = time;
-      if (!self.dragging && self.spin) self.rotation += self.spin;
+      if (!self.dragging && !self.hoverPaused && self.spin) self.rotation += self.spin;
       self.draw();
     };
     this.frame = requestAnimationFrame(loop);
@@ -385,6 +385,8 @@
   var worldShift = null;
   var onPick = null;
   var pointButtons = [];
+  var traveling = false;
+  var travelToken = 0;
   // The two asteroid names float above the rocks in the belt view.
   var asteroidLabels = [];
   // Where each label sits is decided once per world, so the globe can move
@@ -418,6 +420,7 @@
     if (Ctor) {
       try {
         globe = new Ctor(canvas, { world: activeWorld, onFrame: placePoints });
+        if (globe.tuneQuality) globe.tuneQuality();
       } catch (error) {
         console.warn('The 3D globe could not start; drawing the map instead.', error);
         globe = null;
@@ -439,16 +442,18 @@
       button.className = 'g-point';
       button.innerHTML =
         '<span class="g-dot"></span><span class="g-tag"><b>' + v.name + '</b><i>' + v.where + '</i></span>';
-      // Hold the globe still while a point is under the cursor, so a slow turn
-      // never moves the target out from under the click.
+      // Hovering a landing site holds the turn still, then the planet picks up
+      // exactly where it left off when the pointer moves away.
       button.addEventListener('pointerenter', function () {
-        if (globe) { globe.held = globe.spin; globe.spin = 0; }
+        if (globe) globe.hoverPaused = true;
       });
       button.addEventListener('pointerleave', function () {
-        if (globe && globe.held !== null) { globe.spin = globe.held; globe.held = null; }
+        if (globe) globe.hoverPaused = false;
       });
+      button.setAttribute('aria-pressed', 'false');
       button.addEventListener('click', function () {
-        if (onPick) onPick(v.group);
+        if (traveling) return;
+        beginTravel(v);
       });
       // Two machines that landed on almost the same spot (Apollo 12 came down
       // beside Surveyor 3) keep their dots on the real coordinates, and one
@@ -594,8 +599,8 @@
         continue;
       }
 
-      var px = item.p.x + (item.dx || 0);
-      var py = item.p.y + (item.dy || 0);
+      var px = item.p.x + (item.dx || 0) + (e.vehicle.nudgeX || 0);
+      var py = item.p.y + (item.dy || 0) + (e.vehicle.nudgeY || 0);
       var tagW = e.w || 0;
       var tagH = e.h || 0;
       var rowH = Math.max(DOT, tagH);
@@ -663,14 +668,144 @@
     }
   }
 
+  function clearSelection() {
+    pointButtons.forEach(function (entry) {
+      entry.el.classList.remove('is-selected');
+      entry.el.setAttribute('aria-pressed', 'false');
+    });
+    var hint = document.getElementById('globe-hint');
+    if (hint) hint.textContent = '';
+  }
+
+  /* The circle is only the resting frame. When a landing site is chosen the
+     stage itself grows to the viewport, so the surface is not cut by the
+     circular mask and the renderer really draws at the new size. */
+  function expandStage(done) {
+    if (!stage) { done(); return; }
+    var rect = stage.getBoundingClientRect();
+    stage.classList.add('is-expanding');
+    stage.style.position = 'fixed';
+    stage.style.left = rect.left + 'px';
+    stage.style.top = rect.top + 'px';
+    stage.style.width = rect.width + 'px';
+    stage.style.height = rect.height + 'px';
+    stage.style.margin = '0';
+    stage.style.maxWidth = 'none';
+    stage.style.zIndex = '60';
+    void stage.offsetWidth;
+    stage.style.transition = 'left .72s cubic-bezier(.22,.8,.24,1), top .72s cubic-bezier(.22,.8,.24,1), width .72s cubic-bezier(.22,.8,.24,1), height .72s cubic-bezier(.22,.8,.24,1)';
+    stage.style.left = '0px';
+    stage.style.top = '0px';
+    stage.style.width = window.innerWidth + 'px';
+    stage.style.height = window.innerHeight + 'px';
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      done();
+      return;
+    }
+    window.setTimeout(done, 740);
+  }
+
+  function collapseStage() {
+    if (!stage) return;
+    stage.classList.remove('is-expanding');
+    stage.style.cssText = '';
+    if (globe && globe.resize) globe.resize();
+  }
+
+  function beginTravel(v) {
+    if (traveling || !globe) return;
+    traveling = true;
+    globe.hoverPaused = false;
+    travelToken += 1;
+    var token = travelToken;
+    pointButtons.forEach(function (entry) {
+      var on = entry.vehicle.group === v.group;
+      entry.el.classList.toggle('is-selected', on);
+      entry.el.setAttribute('aria-pressed', on ? 'true' : 'false');
+      entry.lock = null;
+    });
+    if (stage) {
+      stage.classList.add('is-traveling');
+      stage.style.setProperty('--travel', '0');
+    }
+    document.body.classList.add('is-departing');
+    var hint = document.getElementById('globe-hint');
+    if (hint) hint.textContent = '';
+    document.querySelectorAll('#worlds .world-tabs button').forEach(function (b) { b.disabled = true; });
+    if (window.SolvixAudio) {
+      if (window.SolvixAudio.depart) window.SolvixAudio.depart();
+      else if (window.SolvixAudio.hop) window.SolvixAudio.hop();
+      if (window.SolvixAudio.duck) window.SolvixAudio.duck(true);
+    }
+
+    function finish() {
+      if (token !== travelToken) return;
+      if (stage) stage.classList.add('is-arriving');
+      var veil = document.getElementById('globe-depart');
+      if (veil) {
+        veil.setAttribute('data-world', v.world);
+        veil.classList.add('on');
+      }
+      var flash = document.getElementById('globe-flash');
+      if (flash) {
+        // Fade up, hold through the page swap, then dissolve. A transition is
+        // used instead of a keyframe animation so a heavy destination paint
+        // cannot leave the white layer stuck at its peak.
+        flash.classList.add('on');
+        window.setTimeout(function () { flash.classList.remove('on'); }, 720);
+      }
+      window.setTimeout(function () {
+        if (token !== travelToken) return;
+        if (onPick) onPick(v.group);
+        window.setTimeout(function () {
+          if (token !== travelToken) return;
+          if (globe && globe.resetView) globe.resetView();
+          traveling = false;
+          collapseStage();
+          document.body.classList.remove('is-departing');
+          if (stage) {
+            stage.classList.remove('is-traveling', 'is-arriving', 'has-selection');
+            stage.style.removeProperty('--travel');
+          }
+          if (veil) veil.classList.remove('on');
+          document.querySelectorAll('#worlds .world-tabs button').forEach(function (b) { b.disabled = false; });
+          clearSelection();
+          if (window.SolvixAudio && window.SolvixAudio.duck) window.SolvixAudio.duck(false);
+        }, 560);
+      }, 200);
+    }
+
+    function startFlight() {
+      if (token !== travelToken) return;
+      if (globe.travelTo) {
+        try {
+          globe.travelTo(v.lat, v.lon, v.id, {
+            duration: 1750,
+            onDone: finish,
+            onProgress: function (progress) {
+              if (stage) stage.style.setProperty('--travel', progress.toFixed(3));
+            }
+          });
+        } catch (error) {
+          finish();
+        }
+      } else {
+        finish();
+      }
+    }
+
+    expandStage(startFlight);
+  }
+
   function setWorld(world) {
     var label = document.getElementById('worlds-name');
     var blurb = document.getElementById('worlds-blurb');
     var calm = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
     function paint() {
-      if (globe) globe.setWorld(world);
+      if (globe) { globe.hoverPaused = false; globe.setWorld(world); }
       buildPoints();
+      if (globe && globe.resetView) globe.resetView();
       var words = WORLDS[world] || WORLDS.Moon;
       if (label) label.textContent = words.label;
       if (blurb) blurb.textContent = words.blurb;
@@ -683,6 +818,7 @@
     }
 
     var moving = world !== activeWorld;
+    if (moving) clearSelection();
     activeWorld = world;
     // A world change is a small journey: one whoosh and a shift in the pad.
     if (moving && window.SolvixAudio) window.SolvixAudio.env(world);
@@ -712,6 +848,29 @@
   }
 
 
+  // Harley's CTA takes the scenic route: if the visitor is on another world,
+  // choose the Moon first, give that swap a full beat to settle, then launch to
+  // Eagle. On the Moon it behaves like a normal point click.
+  function startWithEagle() {
+    if (traveling || !worldsVisible) return;
+    var eagle = null;
+    for (var i = 0; i < VEHICLES.length; i++) {
+      if (VEHICLES[i].id === 'eagle') { eagle = VEHICLES[i]; break; }
+    }
+    if (!eagle) return;
+    if (window.SolvixAudio && window.SolvixAudio.ui) window.SolvixAudio.ui();
+    var launch = function () {
+      if (worldsVisible && !traveling) beginTravel(eagle);
+    };
+    if (activeWorld === 'Moon') {
+      launch();
+      return;
+    }
+    var calm = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    setWorld('Moon');
+    window.setTimeout(launch, calm ? 40 : 1100);
+  }
+
   function initWorlds(pick) {
     onPick = pick;
     stage = document.getElementById('globe-stage');
@@ -722,6 +881,8 @@
     document.querySelectorAll('#worlds .world-tabs button').forEach(function (b) {
       b.addEventListener('click', function () { setWorld(b.dataset.w); });
     });
+    var tipGo = document.getElementById('explore-tip-go');
+    if (tipGo) tipGo.addEventListener('click', startWithEagle);
     // The 3D globe arrives with its module: swap it in over the drawn one.
     window.addEventListener('solvix:globe-ready', createGlobe);
     // Label sizes change with the viewport, so measure them again.
@@ -731,9 +892,87 @@
     });
   }
 
+  var tipHiding = false;
+
+  function showTip() {
+    var tip = document.querySelector('.explore-tip');
+    if (!tip) return;
+    tipHiding = false;
+    if (tip.getAnimations) tip.getAnimations().forEach(function (a) { a.cancel(); });
+    tip.style.visibility = 'visible';
+    var calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (calm || !tip.animate) {
+      tip.style.opacity = '1';
+      tip.style.transform = 'none';
+      return;
+    }
+    tip.style.opacity = '0';
+    tip.style.transform = 'translateY(22px) scale(.94)';
+    tip.animate([
+      { opacity: 0, transform: 'translateY(22px) scale(.94)' },
+      { opacity: 1, transform: 'none' }
+    ], {
+      duration: 580,
+      delay: 120,
+      easing: 'cubic-bezier(.2, .8, .2, 1)',
+      fill: 'both'
+    });
+  }
+
+  function hideTip() {
+    var tip = document.querySelector('.explore-tip');
+    if (!tip || tipHiding) return;
+    tipHiding = true;
+
+    // Capture where the entry animation has reached before cancelling it, so
+    // leaving mid-reveal still lifts away from the current frame.
+    var css = window.getComputedStyle(tip);
+    var fromOpacity = css.opacity;
+    var fromTransform = css.transform;
+    if (tip.getAnimations) tip.getAnimations().forEach(function (a) { a.cancel(); });
+    tip.style.visibility = 'visible';
+    tip.style.opacity = fromOpacity;
+    tip.style.transform = fromTransform;
+
+    var calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (calm || !tip.animate) {
+      tip.style.visibility = 'hidden';
+      tip.style.opacity = '0';
+      tip.style.transform = 'translateY(22px) scale(.94)';
+      return;
+    }
+    var out = tip.animate([
+      { opacity: fromOpacity, transform: fromTransform },
+      { opacity: 0, transform: 'translateY(-12px) scale(.97)' }
+    ], {
+      duration: 240,
+      easing: 'cubic-bezier(.4, 0, .2, 1)',
+      fill: 'both'
+    });
+    if (out.finished) out.finished.then(function () {
+      if (!tipHiding) return;
+      tip.style.visibility = 'hidden';
+      tip.style.opacity = '0';
+      tip.style.transform = 'translateY(22px) scale(.94)';
+    }, function () { });
+  }
+
   function showWorlds() {
     worldsVisible = true;
     if (!globe) return;
+    globe.hoverPaused = false;
+    travelToken += 1;
+    traveling = false;
+    clearSelection();
+    document.body.classList.remove('is-departing');
+    collapseStage();
+    if (stage) stage.classList.remove('is-traveling', 'is-arriving', 'has-selection');
+    var veil = document.getElementById('globe-depart');
+    if (veil) veil.classList.remove('on');
+    var flash = document.getElementById('globe-flash');
+    if (flash) flash.classList.remove('on');
+    document.querySelectorAll('#worlds .world-tabs button').forEach(function (b) { b.disabled = false; });
+    if (globe.resetView) globe.resetView();
     if (globe.resize) globe.resize();
     globe.start();
     globe.draw();
@@ -741,7 +980,21 @@
 
   function hideWorlds() {
     worldsVisible = false;
-    if (globe) globe.stop();
+    travelToken += 1;
+    traveling = false;
+    clearSelection();
+    document.body.classList.remove('is-departing');
+    if (stage) stage.classList.remove('is-traveling', 'is-arriving', 'has-selection');
+    document.querySelectorAll('#worlds .world-tabs button').forEach(function (b) { b.disabled = false; });
+    var veil = document.getElementById('globe-depart');
+    if (veil) veil.classList.remove('on');
+    if (window.SolvixAudio && window.SolvixAudio.duck) window.SolvixAudio.duck(false);
+    if (globe) {
+      if (globe.cancelFlight) globe.cancelFlight();
+      collapseStage();
+      if (globe.resetView) globe.resetView();
+      globe.stop();
+    }
   }
 
     /* ------------------------------------------------------------------ */
@@ -1212,6 +1465,8 @@
     show: showWorlds,
     hide: hideWorlds,
     setWorld: setWorld,
-    transfer: transfer
+    transfer: transfer,
+    revealTip: showTip,
+    hideTip: hideTip
   };
 })();
