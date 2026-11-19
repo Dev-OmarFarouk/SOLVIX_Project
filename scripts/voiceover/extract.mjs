@@ -18,9 +18,15 @@ const EMOJI = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F]/gu;
    its original punctuation; only the narration text gets the extra pause. */
 const SPOKEN_FIXES = {
   // Letters spelled out so the narrator says E-A-S-E-P, not "EZAP".
-  'eagle/03': text => text
-    .replace('Look what I found, Moons! The Moon', 'Look what I found, Moons! ... The Moon')
-    .replace('The EASEP package', 'The E-A-S-E-P package'),
+  'eagle/03': {
+    en: text => text
+      .replace('Look what I found, Moons! The Moon', 'Look what I found, Moons! ... The Moon')
+      .replace('The EASEP package', 'The E-A-S-E-P package'),
+    ar: text => text.replace('حزمة إيزب', 'حزمة E-A-S-E-P')
+  },
+  'eagle/01': {
+    ar: text => text.replace('لقد هبط النسر', 'لقد هبطت Eagle')
+  },
   'near/01': text => text.replace('Hi, Moons! Guess', 'Hi, Moons! ... Guess')
 };
 
@@ -130,6 +136,10 @@ export function readStories() {
     const id = car.id + '/' + num;
     const en = clean(fig.text);
     const fix = SPOKEN_FIXES[id];
+    const enFix = typeof fix === 'function' ? fix : (fix && fix.en);
+    const arFix = (fix && typeof fix === 'object') ? fix.ar : null;
+    const enText = enFix ? clean(enFix(en)) : en;
+    const arText = arFix ? clean(arFix(ar[i])) : ar[i];
     return {
       id,
       machine: car.id,
@@ -137,7 +147,7 @@ export function readStories() {
       world: car.world,
       slide: n,
       order: i,
-      texts: { en: fix ? clean(fix(en)) : en, ar: ar[i] }
+      texts: { en: enText, ar: arText }
     };
   });
 }

@@ -1873,6 +1873,12 @@
         .mis-back { position: relative; padding: 9px 16px; border: 1px solid rgba(37, 182, 255, .4); border-radius: 999px; background: rgba(4, 14, 32, .72); color: var(--tx); font-family: var(--font-ui); font-size: 12px; font-weight: var(--fw-medium); letter-spacing: var(--ls-ui); text-decoration: none; backdrop-filter: blur(6px); transition: .2s }
         .mis-back:hover { background: rgba(37, 182, 255, .24); box-shadow: 0 0 18px rgba(37, 182, 255, .45) }
         .mis-model-loading { position: absolute; left: 50%; top: 50%; z-index: 2; transform: translate(-50%, -50%); font-family: var(--font-mono); font-size: var(--fs-micro); font-weight: 500; letter-spacing: .12em; text-transform: uppercase; color: var(--cy2); animation: misFade 1.6s ease-in-out infinite }
+        /* Loading spinner used next to the voice-over box and the globe. */
+        .vo-spinner, .tex-spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.25); border-top-color: var(--cy2, #37b6ee); border-radius: 50%; animation: voSpin .7s linear infinite; vertical-align: middle; margin-inline-start: 6px }
+        .vo-spinner[hidden], .tex-spinner[hidden] { display: none }
+        @keyframes voSpin { to { transform: rotate(360deg) } }
+        .globe-spinner { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 5; width: 34px; height: 34px; border: 3px solid rgba(255,255,255,.2); border-top-color: var(--cy2, #37b6ee); border-radius: 50%; animation: voSpin .7s linear infinite }
+        .globe-spinner[hidden] { display: none }
         @keyframes misFade { 50% { opacity: .3 } }
         #mission figure, #mission figure.sq { position: relative; z-index: 3; margin-top: 34px }
         #mission .mission-controls { position: relative; z-index: 3 }
@@ -2260,6 +2266,7 @@
             </div>
             <p class="worlds-count" id="worlds-name">The Moon</p>
             <div class="globe-stage" id="globe-stage">
+                <span id="globe-spinner" class="globe-spinner" aria-hidden="true"></span>
                 <canvas id="globe" aria-label="A turning globe with the machines on it"></canvas>
                 <div class="g-approach" aria-hidden="true"></div>
                 <div id="globe-points"></div>
@@ -2480,6 +2487,7 @@
                 <button id="mission-prev" type="button">Back</button>
                 <span id="mission-progress" aria-live="polite"></span>
                 <button id="mission-voice" type="button" title="Read aloud: Off / English / Arabic">🗣 Off</button>
+                <span id="mission-voice-loading" class="vo-spinner" hidden aria-hidden="true"></span>
                 <button id="mission-next" type="button">Next</button>
             </div>
             <p id="mission-notice" hidden aria-live="polite"></p>
@@ -3321,6 +3329,22 @@
         window.SolvixAudio = SolvixAudio;
         const AR = ["مرحباً أيها القمريون! هل تعرفون من أنا؟ أنا إيجل، المركبة القمرية لأبولو 11، وأول مركبة مأهولة هبطت على القمر! بدأت مغامرتي في 16 يوليو 1969 على متن صاروخ ساتورن الخامس العملاق، أحمل رائدين شجاعين: نيل أرمسترونغ وباز ألدرين. وبعد أربعة أيام، في 20 يوليو، هبطت في منطقة بحر الهدوء. وعندما لمسنا السطح قال أرمسترونغ: هيوستن، هنا قاعدة الهدوء. لقد هبط النسر.", "تخيلوا يا قمريون، لم أكن وحدي في هذه المغامرة! كان معنا ثلاثة رواد: نيل أرمسترونغ وباز ألدرين وميشيل كولينز، الذي بقي في المركبة القيادية يدور فوقنا. في 21 يوليو 1969 نزل أرمسترونغ إلى سطح القمر وقال: هذه خطوة صغيرة لإنسان، وقفزة عملاقة للبشرية. ولحقه ألدرين بعد 19 دقيقة ووصف السطح بأنه عزلة رائعة. كشفنا اللوحة التذكارية، ورفعنا العلم الأمريكي، وتحدثنا مع الرئيس نيكسون بالراديو، وصنعنا التاريخ!", "انظروا ماذا وجدت يا قمريون! القمر مليء بالكنوز الخفية. جمع رائداي 21.55 كيلوغراماً من الصخور والتربة وعينات الأنابيب لتعود إلى الأرض، وقطعا نحو 250 متراً حولي. وأحضرنا مختبراً علمياً أيضاً! حزمة إيزب درست الزلازل القمرية وتراكم الغبار والإشعاع. وبعد ساعة و41 دقيقة على السطح، عاد ألدرين إليّ أولاً ثم أرمسترونغ، وأغلقنا الباب بإحكام.", "تعرفوا على أجزائي! لكل جزء فيّ وظيفة خاصة يا قمريون! تعالوا نلقِ نظرة قريبة ونكتشف ماذا يفعل كل جزء. هل أنتم مستعدون للاستكشاف؟", "من أنا برأيكم يا قمريون؟ أنا إنتريبيد، المركبة القمرية لأبولو 12، وثاني مركبة مأهولة تهبط على القمر! انطلقت في 14 نوفمبر 1969 على متن صاروخ ساتورن الخامس العملاق، أحمل القائد بيت كونراد وآلان بين. وفي 19 نوفمبر هبطت في محيط العواصف، على بعد 180 متراً فقط من المسبار سيرفيور 3، في أول هبوط دقيق في تاريخ القمر!", "تخيلوا يا قمريون! استكشف رائداي القمر لمدة 7 ساعات و45 دقيقة في رحلتي مشي، بينما انتظر ريتشارد غوردون في المدار فوقنا. نزلا إلى فوهة سيرفيور لزيارة سيرفيور 3 وأعادا نحو 10 كيلوغرامات من أجزائه، إضافة إلى 34.35 كيلوغراماً من الصخور والتربة!", "تركت هدية خلفي يا قمريون! نصب رائداي محطة علمية تعمل بالطاقة النووية بستة أجهزة تستمع للزلازل القمرية وتقيس الرياح الشمسية. واستمرت في إرسال الاكتشافات إلى الأرض حتى 30 سبتمبر 1977، قرابة ثماني سنوات! وعندما ارتطمت مرحلة الصعود الخاصة بي بالقمر، سببت أول زلزال قمري اصطناعي مسجل.", "لكل جزء فيّ وظيفة خاصة يا قمريون! من مرحلة الهبوط الثمانية الأضلاع بأرجلها الأربع، إلى مقصورة الطاقم بنافذتيها المثلثتين ومحرك الهبوط بقوة 45 ألف نيوتن، ساعدتني كل قطعة على الهبوط بأمان. هل أنتم مستعدون للاستكشاف؟", "مرحباً يا قمريون! نحن مسابير سيرفيور، مسابير ناسا الآلية إلى القمر في الستينيات! هبط خمسة منا بين 1966 و1968. كانت مهمتنا إثبات أن الهبوط الناعم على القمر ممكن، وأن تربته صلبة بما يكفي ليمشي عليها رواد أبولو بأمان!", "نحن عائلة يا قمريون، لكن لكل منا بيته! هبطت سيرفيور 1 و3 و5 و6 على سهول مستوية مثل محيط العواصف وبحر الهدوء لاستكشاف أماكن آمنة لأبولو. أما سيرفيور 7 فهبطت قرب فوهة تيكو الصخرية لتستكشف المرتفعات الوعرة!", "فعلنا أكثر مما توقع أي أحد! سيرفيور 1 حققت أول هبوط ناعم لأمريكا على القمر عام 1966 وأرسلت 11,240 صورة. سيرفيور 3 حفرت خنادق بعمق 17.5 سنتيمتراً وزارها رواد أبولو 12 عام 1969. وسيرفيور 6 قامت بأول إقلاع من القمر وقفزت ثلاثة أمتار! معاً أرسلنا قرابة 90 ألف صورة.", "لكل جزء فينا وظيفة خاصة يا قمريون! من ألواحنا الشمسية التي جمعت ضوء الشمس إلى كاميرات التلفاز ومجارف التربة الآلية، ساعدتنا كل قطعة على استكشاف القمر. هل أنتم مستعدون؟", "مرحباً يا قمريون! نحن فايكنغ 1 وفايكنغ 2، أول مسبارَي هبوط لناسا يعملان بنجاح على المريخ! هبطنا عام 1976 ولا نزال في الأماكن نفسها. كانت مهمتنا التقاط أول صور واضحة من سطح المريخ، ورصد طقسه، وإجراء ثلاث تجارب بيولوجية على التربة بحثاً عن علامات للحياة!", "نحن توأمان يا قمريون، لكننا هبطنا على بعد 6500 كيلومتر من بعضنا! هبطت فايكنغ 1 في سهل كرايس، أي السهل الذهبي، في 20 يوليو 1976 وسط كثبان رملية وصخور. وهبطت فايكنغ 2 في سهل يوتوبيا في 3 سبتمبر 1976، وهو سهل صخري مستوٍ يتشكل فيه الصقيع الأبيض شتاءً!", "صُنعنا لنعمل 90 يوماً، لكننا عملنا سنوات في أماكننا! عملت فايكنغ 1 أكثر من 6 سنوات حتى نوفمبر 1982، ودرست فايكنغ 2 سهل يوتوبيا قرابة 4 سنوات حتى أبريل 1980. معاً أرسلنا 4500 صورة من السطح واكتشفنا العناصر الكيميائية الأساسية للحياة!", "لكل جزء فينا وظيفة خاصة يا قمريون! من مولدات الطاقة النووية وصواري الطقس إلى الكاميرات ومجارف التربة التي غذّت مختبراتنا البيولوجية، ساعدتنا كل قطعة على استكشاف الكوكب الأحمر. هل أنتم مستعدون؟", "مرحباً يا قمريون! أنا سوجورنر، أول مركبة جوالة لناسا على المريخ! هبطت في 4 يوليو 1997 داخل مسبار مارس باثفايندر بفضل وسائد هوائية عملاقة مرتدة! كانت مهمتي إثبات أن مركبة آلية تستطيع التجول على المريخ ودراسة صخوره وتربته. ووجدت حصى مستديراً يدل على أن المريخ كان دافئاً ورطباً قديماً!", "استكشفت أنا وباثفايندر وادي آريس، وهو وادٍ مستوٍ حفرته فيضانات قديمة، حيث ارتدّ باثفايندر 15 مرة قبل أن يفتح منحدراتي! واقتربت من صخور مريخية ضخمة سُمّيت بارناكل بيل ويوغي لأختبر مما تتكون!", "حجمي بحجم فرن ميكروويف فقط، 10.6 كيلوغرامات، لكنني فقت كل التوقعات! صُنعت لسبعة أيام فقط، لكنني استكشفت المريخ 83 يوماً مريخياً حتى سبتمبر 1997. التقطت 550 صورة واختبرت أكثر من 15 صخرة مريخية. واليوم أبقى في وادي آريس رائدةً لكل المركبات الجوالة!", "لكل جزء فيّ وظيفة خاصة يا قمريون! من لوحي الشمسي المسطح إلى عجلاتي الست وجهاز تحليل الصخور، ساعدتني كل قطعة على استكشاف الكوكب الأحمر. هل أنتم مستعدون؟", "مرحباً يا قمريون! نحن لسنا واحداً بل مستكشفان آليان مغامران! نحن سبيريت وأوبورتيونيتي، توأما ناسا الجوالان على المريخ، وهبطنا على جانبين متقابلين من الكوكب الأحمر في يناير 2004. كانت مهمتنا دراسة صخور المريخ وتربته والبحث عن أدلة على الماء. واكتشفنا دليلاً على وجود ماء سائل على المريخ منذ زمن بعيد جداً!", "نحن توأمان لكن لكلٍّ منا مكان هبوط مختلف! هبطت سبيريت في فوهة غوسيف التي ظن العلماء أنها كانت بحيرة. وهبطت أوبورتيونيتي في سهل ميريديياني حيث دلّت المعادن على وجود ماء قديماً.", "قطعنا مسافات أبعد بكثير مما توقع أحد! قطعت سبيريت 7.7 كيلومترات على المريخ قبل انتهاء مهمتها. وقطعت أوبورتيونيتي 45.16 كيلومتراً مذهلة قبل أن ينقطع الاتصال بها في يونيو 2018، لتصبح من أطول المستكشفين الآليين سيراً على عالم آخر!", "لكل جزء فينا وظيفة خاصة يا قمريون! من ألواحنا الشمسية التي جمعت ضوء الشمس إلى كاميراتنا التي التقطت مناظر رائعة للمريخ، ساعدتنا كل قطعة على استكشاف الكوكب الأحمر. هل أنتم مستعدون؟", "مرحباً يا قمريون! نحن فينيكس التي هبطت في مايو 2008، وإنسايت التي هبطت في نوفمبر 2018، مسباران آليان بجسم واحد ثلاثي الأرجل وأجنحة شمسية دائرية! بدونا متشابهين لكن لكلٍّ مهمة: حفرت فينيكس التربة لتكشف جليد الماء تحت السطح، ووضعت إنسايت جهاز قياس الزلازل على الأرض لتسمع زلازل المريخ!", "هبطنا في منطقتين مختلفتين تماماً من الكوكب الأحمر! هبطت فينيكس في فاستيتاس بوريالس في القطب المريخي المتجمد لتحفر بحثاً عن الجليد. وهبطت إنسايت في سهل إليزيوم، سهل هادئ مستوٍ قرب خط الاستواء، مثالي لسماع نبض المريخ!", "حققنا اكتشافات تاريخية قبل أن نفقد الطاقة الشمسية! حفرت فينيكس جليد ماء أبيض لامعاً ورصدت ثلجاً مريخياً قبل أن تفقد طاقتها في الشتاء، نوفمبر 2008. ورصدت إنسايت أكثر من 1300 زلزال مريخي وكشفت طبقات المريخ الداخلية العميقة قبل أن يغطي الغبار ألواحها في ديسمبر 2022!", "لكل جزء فينا وظيفة خاصة يا قمريون! من ألواحنا الشمسية الدائرية إلى مجرفة فينيكس التي حفرت الجليد وجهاز إنسايت القبّي لقياس الزلازل، ساعدتنا كل قطعة على استكشاف المريخ. هل أنتم مستعدون؟", "مرحباً يا قمريون! أنا نير شوميكر، مسبار ناسا الآلي للكويكبات الذي أُطلق عام 1996! كنت أول مركبة في التاريخ تدور حول كويكب، وأول من هبط على واحد! كانت مهمتي الدوران حول الكويكب إيروس 433 القريب من الأرض على شكل حبة فول سوداني، ورسم خريطة لفوهاته وصخوره عن قرب، ومعرفة مما تتكون الكويكبات القديمة!", "قبل أن أستقر على إيروس زرت عالمين صخريين! في 1997 مررت بجوار الكويكب ماتيلد 253، كويكب داكن مليء بالفوهات في الحزام الرئيسي. ثم دخلت مدار إيروس 433 في 14 فبراير 2000 وهبطت قرب منطقة هيميروس في 12 فبراير 2001!", "لم أُصنع لأكون مركبة هبوط، ومع ذلك نجوت من الهبوط على كويكب! دُرت حول إيروس عاماً كاملاً والتقطت 160 ألف صورة، أي عشرة أضعاف البيانات المخطط لها، وأرسلت بيانات علمية إضافية أسبوعين آخرين. ومنذ 28 فبراير 2001 أستريح بهدوء على سطح إيروس 433!", "لكل جزء فيّ وظيفة خاصة يا قمريون! من ألواحي الشمسية الأربعة الشبيهة بالمروحة إلى مقياس المسافة بالليزر ومطياف أشعة غاما الذي درس إيروس من سطحه، ساعدتني كل قطعة على استكشاف كويكب. هل أنتم مستعدون؟", "مرحباً يا قمريون! أنا داون، مسبار ناسا بين الكواكب الذي أُطلق عام 2007! بفضل محركاتي الأيونية فائقة الكفاءة، كنت أول مركبة تدور حول عالمين مختلفين خارج الأرض! كانت مهمتي السفر إلى حزام الكويكبات بين المريخ والمشتري ورسم خريطة لأكبر عالمين فيه، فيستا وسيريس، لكشف أسرار ولادة نظامنا الشمسي!", "دُرت حول عالمين مختلفين جداً ورسمت خريطتيهما! فيستا من 2011 إلى 2012 كوكب أولي صخري فيه فوهة ريازيلفيا العملاقة وجبل أعلى من ضعف إيفرست. وسيريس من 2015 إلى 2018 كوكب قزم جليدي مشهور ببقع الملح البيضاء المتوهجة داخل فوهة أوكاتور!", "محركاتي الأيونية الزرقاء المتوهجة أخذتني أبعد مما حلم أحد! قضيت 14 شهراً أرسم خريطة فوهات فيستا ووديانها قبل أن أنطلق إلى سيريس التي دُرت حولها منذ مارس 2015. وبعد أن نفد وقودي في نوفمبر 2018، أبقى في مدار دائم غير مدفوع حول سيريس!", "لكل جزء فيّ وظيفة خاصة يا قمريون! من أجنحتي الشمسية العملاقة ودافعاتي الأيونية إلى كاميراتي التي رسمت فيستا وسيريس ثلاثية الأبعاد، ساعدتني كل قطعة على استكشاف حزام الكويكبات. هل أنتم مستعدون؟"];
         const canSpeak = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window, voiceBtn = document.getElementById('mission-voice');
+        const voiceSpinner = document.getElementById('mission-voice-loading');
+        function setVoiceSpinner(on) { if (voiceSpinner) voiceSpinner.hidden = !on; }
+        function updateVoiceSpinnerForCurrent() {
+            if (!voiceOn()) { setVoiceSpinner(false); return; }
+            const i = currentMissionSlide;
+            const lang = voiceMode === 2 ? 'ar' : 'en';
+            const clip = clips[clipIdFor(i, lang)];
+            if (!clip) { setVoiceSpinner(false); return; }
+            const a = getAudio(clip.src);
+            setVoiceSpinner(a.readyState < 3);
+            if (a.readyState < 3) {
+                const hide = () => setVoiceSpinner(false);
+                a.addEventListener('canplaythrough', hide, { once: true });
+                a.addEventListener('loadeddata', hide, { once: true });
+            }
+        }
         let voiceMode = 1; // 1 English (default), 2 Arabic, 0 off
         if (!canSpeak) voiceBtn.hidden = true; else speechSynthesis.getVoices();
         voiceBtn.textContent = '\u{1F5E3} ' + ['Off', 'EN', 'AR'][voiceMode];
@@ -3384,6 +3408,7 @@
                 // languages and pages load when the reader asks for them.
                 preloadClipById('eagle/01-en');
                 preloadClipById('eagle/02-en');
+                updateVoiceSpinnerForCurrent();
             })
             .catch(() => { });
 
@@ -3417,14 +3442,19 @@
             const clip = clips[clipIdFor(i, lang)];
             if (clip) {
                 clipAudio = getAudio(clip.src);
+                setVoiceSpinner(clipAudio.readyState < 3);
+                const hideSpinner = () => setVoiceSpinner(false);
+                clipAudio.addEventListener('canplaythrough', hideSpinner, { once: true });
+                clipAudio.addEventListener('loadeddata', hideSpinner, { once: true });
                 try { clipAudio.currentTime = 0; } catch (e) { }
                 clipAudio.play().catch(() => { /* a blocked autoplay stays silent; the words still arrive */ });
-                clipAudio.onended = () => { if (window.SolvixAudio) window.SolvixAudio.duck(false); };
+                clipAudio.onended = () => { if (window.SolvixAudio) window.SolvixAudio.duck(false); setVoiceSpinner(false); };
                 if (i + 1 < missionSlides.length) {
                     preloadClipById(clipIdFor(i + 1, lang));
                 }
                 return;
             }
+            setVoiceSpinner(false);
             const ar = lang === 'ar', u = new SpeechSynthesisUtterance(ar ? AR[i] : clean(missionText[i].map(q => q.text).join(' ')));
             const vs = speechSynthesis.getVoices(), pref = ar ? 'ar-sa' : 'en-us';
             const v = vs.find(x => x.lang.toLowerCase().replace('_', '-') === pref) || vs.find(x => x.lang.toLowerCase().startsWith(ar ? 'ar' : 'en'));
@@ -3435,6 +3465,7 @@
             voiceMode = (voiceMode + 1) % 3; voiceBtn.textContent = '🗣 ' + ['Off', 'EN', 'AR'][voiceMode];
             stopVoice();
             showMissionSlide(currentMissionSlide);
+            updateVoiceSpinnerForCurrent();
             if (voiceMode === 2 && !clips[clipIdFor(currentMissionSlide, 'ar')]) { const vs = speechSynthesis.getVoices(); if (vs.length && !vs.some(x => x.lang.toLowerCase().startsWith('ar'))) { missionNotice.textContent = 'No Arabic voice is installed on this device.'; missionNotice.hidden = false; } }
         });
         /* The page reads itself only once it is on screen: open the machine,
@@ -3544,6 +3575,7 @@
             syncVehicle(mi);
             missionNotice.hidden = true;
             preloadMissionAudio(index);
+            updateVoiceSpinnerForCurrent();
             warmSlideImages(index);
             armSlide(index);
 

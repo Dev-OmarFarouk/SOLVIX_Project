@@ -28,13 +28,13 @@
       "lang": "ar",
       "model": "gemini-3.8-flash-tts",
       "voice": "Kore",
-      "hash": "98900a9388b06400fdba4549913d7891",
-      "chars": 355,
+      "hash": "9b9cb3aef9d86e211573260a04f89fb1",
+      "chars": 356,
       "file": "eagle/01-ar.mp3",
       "status": "ok",
-      "bytes": 475245,
-      "duration": 39.54,
-      "updatedAt": "2026-11-15T15:14:05.452Z"
+      "bytes": 494829,
+      "duration": 41.18,
+      "generatedAt": "2026-11-19T20:22:01.222Z"
     },
     "eagle/02-en": {
       "id": "eagle/02-en",
@@ -96,13 +96,13 @@
       "lang": "ar",
       "model": "gemini-3.8-flash-tts",
       "voice": "Kore",
-      "hash": "2fd5dca4a28a7dbc68529907730ada15",
-      "chars": 333,
+      "hash": "76668bba6bdc50c8e996482729793caf",
+      "chars": 338,
       "file": "eagle/03-ar.mp3",
       "status": "ok",
-      "bytes": 470349,
-      "duration": 39.14,
-      "updatedAt": "2026-11-15T15:14:05.627Z"
+      "bytes": 475821,
+      "duration": 39.58,
+      "generatedAt": "2026-11-19T20:22:20.103Z"
     },
     "eagle/04-en": {
       "id": "eagle/04-en",
@@ -1230,5 +1230,5 @@
       "generatedAt": "2026-11-19T05:49:50.478Z"
     }
   },
-  "updatedAt": "2026-11-19T16:11:25.811Z"
+  "updatedAt": "2026-11-19T20:22:20.114Z"
 }

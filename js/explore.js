@@ -393,6 +393,17 @@
   // underneath without the names hopping from side to side.
   var layoutLocked = false;
   var worldsVisible = false;
+  var loadedTextures = new Set();
+  function updateGlobeSpinner() {
+    var sp = document.getElementById('globe-spinner');
+    if (!sp) return;
+    var need = activeWorld === 'Mars' ? 'mars' : (activeWorld === 'Asteroid belt' ? 'asteroid' : 'moon');
+    sp.hidden = loadedTextures.has(need);
+  }
+  window.addEventListener('solvix:texture-loaded', function (e) {
+    if (e && e.detail && e.detail.name) loadedTextures.add(e.detail.name);
+    updateGlobeSpinner();
+  });
 
   /**
    * The globe on the page: the real three.js sphere with NASA's maps when the
@@ -429,6 +440,7 @@
     if (!globe) globe = new FlatGlobe(canvas, { world: activeWorld, onFrame: placePoints });
 
     if (worldsVisible) { if (globe.resize) globe.resize(); globe.start(); globe.draw(); }
+    updateGlobeSpinner();
   }
 
   function buildPoints() {
@@ -811,6 +823,7 @@
       if (label) label.textContent = words.label;
       if (blurb) blurb.textContent = words.blurb;
       if (stage) stage.setAttribute('data-world', world);
+      updateGlobeSpinner();
       var section = document.getElementById('worlds');
       if (section) section.classList.toggle('is-belt', world === 'Asteroid belt');
       document.querySelectorAll('#worlds .world-tabs button').forEach(function (b) {
