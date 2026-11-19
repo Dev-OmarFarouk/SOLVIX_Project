@@ -28,13 +28,13 @@
       "lang": "ar",
       "model": "gemini-3.8-flash-tts",
       "voice": "Kore",
-      "hash": "9b9cb3aef9d86e211573260a04f89fb1",
-      "chars": 356,
+      "hash": "b2f565767ff7d06897b20a10f10b34aa",
+      "chars": 359,
       "file": "eagle/01-ar.mp3",
       "status": "ok",
-      "bytes": 494829,
-      "duration": 41.18,
-      "generatedAt": "2026-11-19T20:22:01.222Z"
+      "bytes": 506925,
+      "duration": 42.18,
+      "generatedAt": "2026-11-19T23:27:56.187Z"
     },
     "eagle/02-en": {
       "id": "eagle/02-en",
@@ -1230,5 +1230,5 @@
       "generatedAt": "2026-11-19T05:49:50.478Z"
     }
   },
-  "updatedAt": "2026-11-19T20:22:20.114Z"
+  "updatedAt": "2026-11-19T23:27:56.234Z"
 }
