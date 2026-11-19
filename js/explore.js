@@ -726,6 +726,24 @@
 
   function beginTravel(v) {
     if (traveling || !globe) return;
+    // Wait for the globe texture to be ready before starting the expansion,
+    // so the first-time upload never lands inside the transition animation.
+    var needTex = activeWorld === 'Mars' ? 'mars' : (activeWorld === 'Asteroid belt' ? 'asteroid' : 'moon');
+    if (!loadedTextures.has(needTex)) {
+      var started = false;
+      var go = function () {
+        if (started) return;
+        started = true;
+        window.removeEventListener('solvix:texture-loaded', onTex);
+        beginTravel(v);
+      };
+      var onTex = function (e) {
+        if (e && e.detail && e.detail.name === needTex) go();
+      };
+      window.addEventListener('solvix:texture-loaded', onTex);
+      setTimeout(go, 1200);
+      return;
+    }
     traveling = true;
     globe.hoverPaused = false;
     travelToken += 1;

@@ -4375,15 +4375,19 @@
             if (viewerVehicle === mi) return;
             viewerVehicle = mi;
             const loading = document.getElementById('mission-loading');
-            if (loading) loading.hidden = false;
-            if (window.SolvixViewer) {
-                window.SolvixViewer.mount(v.model, v.world === 'Asteroid belt' ? 'Deep space' : v.world, () => {
-                    if (loading) loading.hidden = true;
-                    prefetchVehicle((mi + 1) % VEHICLES.length);
-                });
-            } else {
-                pendingViewer = mi;
-            }
+            // Defer the heavy 3D mount off the page-transition frame so the
+            // fly-in animation stays smooth; the loading indicator covers the gap.
+            setTimeout(function () {
+                if (loading) loading.hidden = false;
+                if (window.SolvixViewer) {
+                    window.SolvixViewer.mount(v.model, v.world === 'Asteroid belt' ? 'Deep space' : v.world, () => {
+                        if (loading) loading.hidden = true;
+                        prefetchVehicle((mi + 1) % VEHICLES.length);
+                    });
+                } else {
+                    pendingViewer = mi;
+                }
+            }, 0);
         }
 
         window.addEventListener('solvix:viewer-ready', () => {
