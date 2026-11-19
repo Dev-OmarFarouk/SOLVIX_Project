@@ -271,7 +271,7 @@ GlobeView.prototype.travelTo = function (lat, lon, id, options) {
   if (!duration) {
     apply(1);
     this.lockInput(false);
-    if (opts.onDone) opts.onDone();
+    if (opts.onDone) requestAnimationFrame(() => opts.onDone());
     return;
   }
 
@@ -283,8 +283,11 @@ GlobeView.prototype.travelTo = function (lat, lon, id, options) {
       this._flightRaf = requestAnimationFrame(tick);
     } else {
       this._flightRaf = 0;
+      // Force one last painted frame at the fully zoomed-in camera so the
+      // final image before the page swap is never a stale, half-zoomed one.
+      apply(1);
       this.lockInput(false);
-      if (opts.onDone) opts.onDone();
+      requestAnimationFrame(() => { if (opts.onDone) opts.onDone(); });
     }
   };
   this._flightRaf = requestAnimationFrame(tick);

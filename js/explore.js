@@ -777,6 +777,7 @@
 
     function startFlight() {
       if (token !== travelToken) return;
+      if (globe && globe.resize) globe.resize();
       if (globe.travelTo) {
         try {
           globe.travelTo(v.lat, v.lon, v.id, {
