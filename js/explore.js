@@ -573,6 +573,7 @@
       if (fan) {
         items[i].dx = fan.dx;
         items[i].dy = fan.dy;
+        items[i].labelShift = fan.labelShift || 0;
       }
     }
     for (i = 0; i < items.length; i += 1) {
@@ -588,10 +589,14 @@
       if (close) {
         items[i].dx = (items[i].dx || 0) + 15;
         items[i].dy = (items[i].dy || 0) - 17;
+        items[i].labelShift = -15;
+      } else {
+        items[i].labelShift = items[i].labelShift || 0;
       }
       items[i].entry.fan = {
         dx: items[i].dx || 0,
         dy: items[i].dy || 0,
+        labelShift: items[i].labelShift || 0,
         flip: false,
         shift: 0
       };
