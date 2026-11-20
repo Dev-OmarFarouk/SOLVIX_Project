@@ -511,6 +511,9 @@
     if (!globe || !pointsLayer) return;
     var stage = pointsLayer.getBoundingClientRect();
     if (stage.width < 8 || stage.height < 8) return;
+    var stageEl = document.getElementById('globe-stage');
+    var shifting = !!(stageEl && stageEl.classList.contains('is-shifting'));
+
 
     // A resize can be missed while the page is hidden: catch it by comparing
     // the drawing buffer with the space the globe actually has.
@@ -545,12 +548,15 @@
       var strength = Math.max(0, Math.min(1, (p.z - 0.12) / 0.4));
       if (visible) {
         if (!entry.w) {
-          entry.w = entry.tag.offsetWidth;
-          entry.h = entry.tag.offsetHeight;
+          var mw = entry.tag.offsetWidth;
+          var mh = entry.tag.offsetHeight;
+          if (mw > 0 && mh > 0) { entry.w = mw; entry.h = mh; }
         }
         // The label hangs on the inside of the globe, and the two thresholds
         // keep it from flicking back and forth as the globe turns.
-        if (entry.side === undefined) entry.side = p.x > stage.width * 0.5;
+        if (shifting) {
+          // Don't commit a side while the stage is still scaled/rotated.
+        } else if (entry.side === undefined) entry.side = p.x > stage.width * 0.5;
         else if (!entry.side && p.x > stage.width * 0.62) entry.side = true;
         else if (entry.side && p.x < stage.width * 0.4) entry.side = false;
       }
@@ -569,7 +575,7 @@
       items[i].flipSide = fan.flip;
       items[i].labelShift = fan.shift;
     }
-    if (!layoutLocked) {
+    if (!layoutLocked && !shifting) {
       for (i = 0; i < items.length; i += 1) {
         if (!items[i].visible || items[i].entry.fan) continue;
         for (var j = 0; j < i; j += 1) {
