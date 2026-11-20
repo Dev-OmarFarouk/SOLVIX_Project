@@ -902,23 +902,10 @@
     stage = document.getElementById('globe-stage');
     pointsLayer = document.getElementById('globe-points');
     if (!stage || !document.getElementById('globe')) return;
-    // The 3D globe module is deferred, so on the first tick it may not exist
-    // yet. Building the cheap 2D fallback first would flash a blurry map
-    // before the real textures arrive; wait for the module instead and only
-    // fall back if it never loads.
-    function bootGlobe() {
-      createGlobe();
-    }
-    if (window.SolvixGlobe) {
-      bootGlobe();
-    } else {
-      var flatFallback = setTimeout(function () { if (!window.SolvixGlobe) bootGlobe(); }, 2500);
-      window.addEventListener('solvix:globe-ready', function () {
-        clearTimeout(flatFallback);
-        if (window.SolvixGlobe) bootGlobe();
-      }, { once: true });
-    }
+    createGlobe();
     buildPoints();
+    // The 3D globe arrives with its module: swap it in over the drawn one.
+    window.addEventListener('solvix:globe-ready', createGlobe);
     document.querySelectorAll('#worlds .world-tabs button').forEach(function (b) {
       b.addEventListener('click', function () { setWorld(b.dataset.w); });
     });

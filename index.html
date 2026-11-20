@@ -1531,8 +1531,7 @@
             .globe-stage.is-shifting::after { animation: none }
         }
         .worlds-count { margin: 22px 0 0; font-family: var(--font-mono); font-size: var(--fs-micro); font-weight: 500; line-height: 1.4; letter-spacing: .14em; text-transform: uppercase; color: var(--cy) }
-        .globe-stage { position: relative; isolation: isolate; width: min(82vw, 540px); aspect-ratio: 1; margin: 6px auto 0; will-change: transform; contain: layout paint }
-        .globe-stage.is-expanding { will-change: left, top, width, height }
+        .globe-stage { position: relative; isolation: isolate; width: min(82vw, 540px); aspect-ratio: 1; margin: 6px auto 0 }
         /* The stage is the camera frame, not a fixed porthole. It grows to the
            whole viewport for a departure, and the circular mask is removed. */
         .globe-stage.is-expanding {
@@ -1563,7 +1562,7 @@
         .globe-stage[data-world="Mars"]::before { background: radial-gradient(circle at 50% 50%, rgba(255, 138, 31, 0) 0 57%, rgba(255, 138, 31, .34) 65%, rgba(255, 138, 31, .12) 73%, rgba(255, 138, 31, 0) 82%) }
         .globe-stage[data-world="Asteroid belt"]::before { background: radial-gradient(circle at 50% 50%, rgba(255, 196, 120, 0) 0 57%, rgba(255, 196, 120, .3) 65%, rgba(255, 196, 120, .1) 73%, rgba(255, 196, 120, 0) 82%) }
         .globe-stage.is-expanding::before { opacity: .95; inset: -24% }
-        #globe { display: block; width: 100%; height: 100%; border-radius: 50%; cursor: grab; touch-action: none; transition: transform .5s cubic-bezier(.5, 0, .18, 1), filter .5s ease, border-radius .45s ease; will-change: transform, filter }
+        #globe { display: block; width: 100%; height: 100%; border-radius: 50%; cursor: grab; touch-action: none; transition: transform .5s cubic-bezier(.5, 0, .18, 1), filter .5s ease, border-radius .45s ease }
         #globe:active { cursor: grabbing }
         #globe-points { position: absolute; inset: 0; pointer-events: none }
         /* A soft inner vignette keeps the limb from meeting the circular frame
@@ -4441,19 +4440,15 @@
             if (viewerVehicle === mi) return;
             viewerVehicle = mi;
             const loading = document.getElementById('mission-loading');
-            // Defer the heavy 3D mount off the page-transition frame so the
-            // fly-in animation stays smooth; the loading indicator covers the gap.
-            setTimeout(function () {
-                if (loading) loading.hidden = false;
-                if (window.SolvixViewer) {
-                    window.SolvixViewer.mount(v.model, v.world === 'Asteroid belt' ? 'Deep space' : v.world, () => {
-                        if (loading) loading.hidden = true;
-                        prefetchVehicle((mi + 1) % VEHICLES.length);
-                    });
-                } else {
-                    pendingViewer = mi;
-                }
-            }, 0);
+            if (loading) loading.hidden = false;
+            if (window.SolvixViewer) {
+                window.SolvixViewer.mount(v.model, v.world === 'Asteroid belt' ? 'Deep space' : v.world, () => {
+                    if (loading) loading.hidden = true;
+                    prefetchVehicle((mi + 1) % VEHICLES.length);
+                });
+            } else {
+                pendingViewer = mi;
+            }
         }
 
         window.addEventListener('solvix:viewer-ready', () => {
