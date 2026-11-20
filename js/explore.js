@@ -506,16 +506,10 @@
   }
 
   var resizing = false;
-  // The label layer's box only changes on resize or when the stage expands for
-  // a flight. Reading it every animation frame forces a layout on the main
-  // thread and is one of the cheapest ways to lose a frame while the globe
-  // turns, so cache it and invalidate it on those two events.
-  var stageRect = null;
 
   function placePoints() {
     if (!globe || !pointsLayer) return;
-    var stage = stageRect;
-    if (!stage) { stage = stageRect = pointsLayer.getBoundingClientRect(); }
+    var stage = pointsLayer.getBoundingClientRect();
     if (stage.width < 8 || stage.height < 8) return;
 
     // A resize can be missed while the page is hidden: catch it by comparing
@@ -732,7 +726,6 @@
     if (!stage) return;
     stage.classList.remove('is-expanding');
     stage.style.cssText = '';
-    stageRect = null;
     if (globe && globe.resize) globe.resize();
   }
 
@@ -914,7 +907,6 @@
 
     // Label sizes change with the viewport, so measure them again.
     window.addEventListener('resize', function () {
-      stageRect = null;
       pointButtons.forEach(function (e) { e.w = 0; e.h = 0; });
       placePoints();
     });
