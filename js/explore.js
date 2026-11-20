@@ -563,8 +563,39 @@
       items.push({ entry: entry, p: p, visible: visible, strength: strength });
     }
 
-    // Each machine keeps its own dot on its real coordinates and its label
-    // right beside it; no fan/intercept between neighbouring landing sites.
+    // Two machines can share a landing site (Apollo 12 came down beside
+    // Surveyor 3): nudge the later one's dot so it is not hidden behind the
+    // first, but keep each label right next to its own (shifted) dot. The
+    // decision is based on the fixed coordinates, not on the (rotating) pixel
+    // positions, so it stays stable across frames.
+    for (i = 0; i < items.length; i += 1) {
+      var fan = items[i].entry.fan;
+      if (fan) {
+        items[i].dx = fan.dx;
+        items[i].dy = fan.dy;
+      }
+    }
+    for (i = 0; i < items.length; i += 1) {
+      if (items[i].entry.fan) continue;
+      var close = false;
+      for (var j = 0; j < i; j += 1) {
+        if (Math.abs(items[i].entry.vehicle.lat - items[j].entry.vehicle.lat) +
+            Math.abs(items[i].entry.vehicle.lon - items[j].entry.vehicle.lon) < 2) {
+          close = true;
+          break;
+        }
+      }
+      if (close) {
+        items[i].dx = (items[i].dx || 0) + 15;
+        items[i].dy = (items[i].dy || 0) - 17;
+      }
+      items[i].entry.fan = {
+        dx: items[i].dx || 0,
+        dy: items[i].dy || 0,
+        flip: false,
+        shift: 0
+      };
+    }
 
     var placed = [];
     for (i = 0; i < items.length; i += 1) {
