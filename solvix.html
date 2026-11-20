@@ -3811,7 +3811,10 @@
                 { n: 'Hard+', c: 6, r: 5 }, { n: 'Expert', c: 6, r: 6 }, { n: 'Expert+', c: 7, r: 6 }
             ];
             const SHORT = ['Eagle', 'Intrepid', 'Surveyor', 'Viking', 'Sojourner', 'Spirit & Opp.', 'Phoenix & InSight', 'NEAR', 'Dawn'];
-            const src = i => document.querySelector('#mission figure[data-m="' + i + '"] img').src;
+            const src = i => {
+                const im = document.querySelector('#mission figure[data-m="' + i + '"] img');
+                return im ? (im.dataset.src || im.getAttribute('src') || im.currentSrc || '') : '';
+            };
             const levelFor = i => Math.min(SIZES.length - 1, i);
             let inited = false, dev = 0, sizeI = 1, img = null, st = null, timer = null, t0 = 0, acc = 0, started = false, won = false, z = 10, loadId = 0, drag = null, hint = false, active = false;
             let done = []; try { done = JSON.parse(localStorage.getItem('solvix_pz') || '[]') } catch (e) { }
@@ -3861,7 +3864,11 @@
                 try { await im.decode() } catch (e) { }
                 if (id !== loadId) return;
                 img = im;
-                const SW = Math.floor(stage.clientWidth || 800), a = im.naturalWidth / im.naturalHeight;
+                const a = im.naturalWidth / im.naturalHeight;
+                // A missing or still undecoded image would make every edge NaN;
+                // leave the board as it is instead of throwing inside the loop.
+                if (!a || !Number.isFinite(a)) return;
+                const SW = Math.floor(stage.clientWidth || 800);
                 let { c: cols, r: rows } = SIZES[sizeI]; if (a < 1) [cols, rows] = [rows, cols];
                 const maxH = Math.min(innerHeight * .56, 520), BW = Math.floor(Math.min(SW, maxH * a, 780)), BH = Math.floor(BW / a);
                 const cw = BW / cols, ch = BH / rows, m = Math.min(cw, ch), pad = Math.ceil(.27 * m) + 3, n = cols * rows;
