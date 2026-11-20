@@ -287,7 +287,7 @@
   function attach(scene, key) {
     detach();
     var names = PAIRS[key];
-    if (!names || !scene || !scene.model || !scene.scene || !scene.camera) return;
+    if (!names || !scene || !scene.scene || !scene.camera) return;
     if (scene.reduced) return;   // motion-sensitive visitors keep the plain view
 
     state = { scene: scene, key: key, twin: null, layer: null, frame: 0, timer: 0, watch: 0 };

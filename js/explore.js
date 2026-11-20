@@ -506,15 +506,21 @@
   }
 
   var resizing = false;
+  // The label layer's box only changes on resize or when the stage expands for
+  // a flight. Reading it every animation frame forces a layout on the main
+  // thread and is one of the cheapest ways to lose a frame while the globe
+  // turns, so cache it and invalidate it on those two events.
+  var stageRect = null;
 
   function placePoints() {
     if (!globe || !pointsLayer) return;
-    var stage = pointsLayer.getBoundingClientRect();
+    var stage = stageRect;
+    if (!stage) { stage = stageRect = pointsLayer.getBoundingClientRect(); }
     if (stage.width < 8 || stage.height < 8) return;
 
     // A resize can be missed while the page is hidden: catch it by comparing
     // the drawing buffer with the space the globe actually has.
-    var canvas = document.getElementById('globe');
+    var canvas = globe.canvas || document.getElementById('globe');
     if (canvas && globe.resize && !resizing) {
       var ratio = Math.min(2, window.devicePixelRatio || 1);
       if (Math.abs(canvas.width / ratio - stage.width) > 1.5) {
@@ -629,6 +635,10 @@
       var baseTop = centred + (item.labelShift || 0);
       var own = { x: px - DOT / 2, y: py - DOT / 2, w: DOT, h: DOT };
       var rect = null;
+      if (e.lock && stage.width < 520) {
+        var lockX = e.lock.left ? spaceLeft - tagW : px + DOT / 2 + GAP;
+        if (lockX < PAD || lockX + tagW > stage.width - PAD) e.lock = null;
+      }
       if (e.lock) {
         // A label that has found its place keeps it: only the dot keeps moving.
         left = false;
@@ -652,6 +662,7 @@
             var top = baseTop + order[k] * step;
             if (top < PAD || top + tagH > stage.height - PAD) continue;
             var cand = { x: x, y: top, w: tagW, h: tagH, left: onLeft };
+            if (stage.width < 520 && (cand.x < PAD || cand.x + tagW > stage.width - PAD)) continue;
             var clear = !boxesOverlap(cand, own);
             for (var q = 0; clear && q < placed.length; q += 1) if (boxesOverlap(cand, placed[q])) clear = false;
             if (!clear) continue;
@@ -721,6 +732,7 @@
     if (!stage) return;
     stage.classList.remove('is-expanding');
     stage.style.cssText = '';
+    stageRect = null;
     if (globe && globe.resize) globe.resize();
   }
 
@@ -890,17 +902,32 @@
     stage = document.getElementById('globe-stage');
     pointsLayer = document.getElementById('globe-points');
     if (!stage || !document.getElementById('globe')) return;
-    createGlobe();
+    // The 3D globe module is deferred, so on the first tick it may not exist
+    // yet. Building the cheap 2D fallback first would flash a blurry map
+    // before the real textures arrive; wait for the module instead and only
+    // fall back if it never loads.
+    function bootGlobe() {
+      createGlobe();
+    }
+    if (window.SolvixGlobe) {
+      bootGlobe();
+    } else {
+      var flatFallback = setTimeout(function () { if (!window.SolvixGlobe) bootGlobe(); }, 2500);
+      window.addEventListener('solvix:globe-ready', function () {
+        clearTimeout(flatFallback);
+        if (window.SolvixGlobe) bootGlobe();
+      }, { once: true });
+    }
     buildPoints();
     document.querySelectorAll('#worlds .world-tabs button').forEach(function (b) {
       b.addEventListener('click', function () { setWorld(b.dataset.w); });
     });
     var tipGo = document.getElementById('explore-tip-go');
     if (tipGo) tipGo.addEventListener('click', startWithEagle);
-    // The 3D globe arrives with its module: swap it in over the drawn one.
-    window.addEventListener('solvix:globe-ready', createGlobe);
+
     // Label sizes change with the viewport, so measure them again.
     window.addEventListener('resize', function () {
+      stageRect = null;
       pointButtons.forEach(function (e) { e.w = 0; e.h = 0; });
       placePoints();
     });
@@ -911,6 +938,11 @@
   function showTip() {
     var tip = document.querySelector('.explore-tip');
     if (!tip) return;
+    var astro = tip.querySelector('.explore-tip-astro');
+    if (astro && astro.dataset.src) {
+      astro.src = astro.dataset.src;
+      astro.removeAttribute('data-src');
+    }
     tipHiding = false;
     if (tip.getAnimations) tip.getAnimations().forEach(function (a) { a.cancel(); });
     tip.style.visibility = 'visible';
