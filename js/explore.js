@@ -588,8 +588,8 @@
       }
       if (close) {
         items[i].dx = (items[i].dx || 0) + 15;
-        items[i].dy = (items[i].dy || 0) - 17;
-        items[i].labelShift = -15;
+        items[i].dy = (items[i].dy || 0) - 27;
+        items[i].labelShift = -25;
       } else {
         items[i].labelShift = items[i].labelShift || 0;
       }
