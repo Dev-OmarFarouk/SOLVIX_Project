@@ -1492,6 +1492,7 @@
     hide: hideWorlds,
     setWorld: setWorld,
     transfer: transfer,
+    loadMap: loadMap,
     revealTip: showTip,
     hideTip: hideTip
   };

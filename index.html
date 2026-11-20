@@ -3633,6 +3633,14 @@
             missionPrev.disabled = pos === 0;
 
             syncVehicle(mi);
+            // Preload the transfer (inter-equipment) maps so the transition
+            // is not still loading when it is about to appear.
+            if (window.SolvixExplore && window.SolvixExplore.loadMap) {
+                const curW = (typeof VEHICLES !== 'undefined' && VEHICLES[mi]) ? VEHICLES[mi].world : null;
+                const nextW = (typeof VEHICLES !== 'undefined' && VEHICLES[(mi + 1) % VEHICLES.length]) ? VEHICLES[(mi + 1) % VEHICLES.length].world : null;
+                if (curW) window.SolvixExplore.loadMap(curW, function () { });
+                if (nextW && nextW !== curW) window.SolvixExplore.loadMap(nextW, function () { });
+            }
             missionNotice.hidden = true;
             preloadMissionAudio(index);
             warmSlideImages(index);
@@ -4642,6 +4650,13 @@
         let cur = bootRoute.page;
         if (bootRoute.isDeviceRoute) {
             currentVehicle = bootRoute.deviceIndex;
+            // Preload transfer maps for this and the next machine.
+            if (window.SolvixExplore && window.SolvixExplore.loadMap) {
+                const curW = VEHICLES[currentVehicle] ? VEHICLES[currentVehicle].world : null;
+                const nextW = VEHICLES[(currentVehicle + 1) % VEHICLES.length] ? VEHICLES[(currentVehicle + 1) % VEHICLES.length].world : null;
+                if (curW) window.SolvixExplore.loadMap(curW, function () { });
+                if (nextW && nextW !== curW) window.SolvixExplore.loadMap(nextW, function () { });
+            }
         }
 
         function jumpToTop() {
