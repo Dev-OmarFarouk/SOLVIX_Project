@@ -563,49 +563,8 @@
       items.push({ entry: entry, p: p, visible: visible, strength: strength });
     }
 
-    // Two machines can share a landing site (Apollo 12 came down right beside
-    // Surveyor 3), which would leave them on the same pixel: fan them apart so
-    // each one keeps its own dot to touch. That decision is kept for the whole
-    // visit, so a turning globe never makes the pair jump.
-    for (i = 0; i < items.length; i += 1) {
-      var fan = items[i].entry.fan;
-      if (!fan) continue;
-      items[i].dx = fan.dx;
-      items[i].dy = fan.dy;
-      items[i].flipSide = fan.flip;
-      items[i].labelShift = fan.shift;
-    }
-    if (!layoutLocked && !shifting) {
-      for (i = 0; i < items.length; i += 1) {
-        if (!items[i].visible || items[i].entry.fan) continue;
-        for (var j = 0; j < i; j += 1) {
-          if (!items[j].visible) continue;
-          var gapX = (items[i].p.x + (items[i].dx || 0)) - (items[j].p.x + (items[j].dx || 0));
-          var gapY = (items[i].p.y + (items[i].dy || 0)) - (items[j].p.y + (items[j].dy || 0));
-          if (Math.sqrt(gapX * gapX + gapY * gapY) < 17) {
-            items[i].dx = (items[i].dx || 0) + 15;
-            items[i].dy = (items[i].dy || 0) - 17;
-            // Their labels would lie over each other: send this one the other way.
-            var otherLeft = items[j].flipSide ? !items[j].entry.side : !!items[j].entry.side;
-            items[i].flipSide = (!!items[i].entry.side) === otherLeft;
-            // Their names stack around the two dots instead of one running away.
-            var apart = items[i].p.y >= items[j].p.y ? 1 : -1;
-            items[i].labelShift = apart * 15;
-            items[j].labelShift = -apart * 15;
-          }
-        }
-      }
-      for (i = 0; i < items.length; i += 1) {
-        if (items[i].entry.fan) continue;
-        items[i].entry.fan = {
-          dx: items[i].dx || 0,
-          dy: items[i].dy || 0,
-          flip: items[i].flipSide,
-          shift: items[i].labelShift || 0
-        };
-      }
-      layoutLocked = true;
-    }
+    // Each machine keeps its own dot on its real coordinates and its label
+    // right beside it; no fan/intercept between neighbouring landing sites.
 
     var placed = [];
     for (i = 0; i < items.length; i += 1) {
@@ -651,7 +610,7 @@
       } else {
 
         var step = tagH + PAD;
-        var order = [0, 1, -1, 2, -2, 3, -3];
+        var order = [0];
         // Try each side: the nearest free slot, and the one that stays on the globe.
         var best = null;
         for (var side = 0; side < 2; side += 1) {
